@@ -36,6 +36,7 @@
 #include "keepaway_communication.h"
 #include "sample_freeform_message_parser.h"
 
+#include "bhv_basic_offensive_kick.h"
 #include "bhv_penalty_kick.h"
 #include "bhv_set_play.h"
 #include "bhv_set_play_kick_in.h"
@@ -222,7 +223,12 @@ SamplePlayer::actionImpl()
     // decision Make
     //
     
-    //ToDo: call decision maker
+    if (Bhv_BasicOffensiveKick().execute( this ))
+    {
+        dlog.addText( Logger::TEAM,
+                      __FILE__": bhv_basic_offensive_kick" );
+        return;
+    }
 
     //
     // penalty kick mode

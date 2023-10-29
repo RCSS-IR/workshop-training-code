@@ -39,6 +39,7 @@ add_executable(sample_player
   setplay/bhv_their_goal_kick_move.cpp
   setplay/intention_wait_after_set_play_kick.cpp
   bhv_basic_move.cpp
+  bhv_basic_offensive_kick.cpp
   bhv_basic_tackle.cpp
   bhv_custom_before_kick_off.cpp
   bhv_goalie_basic_move.cpp
