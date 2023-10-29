@@ -33,7 +33,6 @@
 #include "bhv_goalie_basic_move.h"
 
 #include "basic_actions/body_clear_ball.h"
-#include "basic_actions/body_pass.h"
 
 #include "basic_actions/basic_actions.h"
 #include "basic_actions/body_kick_one_step.h"
@@ -208,25 +207,26 @@ Bhv_GoalieFreeKick::doKick( PlayerAgent * agent )
     Vector2D target_point;
     double pass_speed = 0.0;
 
-    if  ( Body_Pass::get_best_pass( agent->world(), &target_point, &pass_speed, NULL )
-          && target_point.dist( Vector2D( -50.0, 0.0 ) ) > 20.0 )
-    {
-        double opp_dist = 100.0;
-        const PlayerObject * opp
-            = agent->world().getOpponentNearestTo( target_point, 20, &opp_dist );
-        agent->debugClient().addMessage( "GKickOppDist%.1f", opp ? opp_dist : 1000.0 );
-        if ( ! opp || opp_dist > 3.0 )
-        {
-            Body_KickOneStep( target_point,
-                              pass_speed ).execute( agent );
-            dlog.addText( Logger::TEAM,
-                          __FILE__": register goalie kick intention. to (%.1f, %.1f)",
-                          target_point.x,
-                          target_point.y );
-            agent->setNeckAction( new Neck_ScanField() );
-            return;
-        }
-    }
+    // TODO: use new pass here
+    // if  ( Body_Pass::get_best_pass( agent->world(), &target_point, &pass_speed, NULL )
+    //       && target_point.dist( Vector2D( -50.0, 0.0 ) ) > 20.0 )
+    // {
+    //     double opp_dist = 100.0;
+    //     const PlayerObject * opp
+    //         = agent->world().getOpponentNearestTo( target_point, 20, &opp_dist );
+    //     agent->debugClient().addMessage( "GKickOppDist%.1f", opp ? opp_dist : 1000.0 );
+    //     if ( ! opp || opp_dist > 3.0 )
+    //     {
+    //         Body_KickOneStep( target_point,
+    //                           pass_speed ).execute( agent );
+    //         dlog.addText( Logger::TEAM,
+    //                       __FILE__": register goalie kick intention. to (%.1f, %.1f)",
+    //                       target_point.x,
+    //                       target_point.y );
+    //         agent->setNeckAction( new Neck_ScanField() );
+    //         return;
+    //     }
+    // }
 
     Body_ClearBall().execute( agent );
     agent->setNeckAction( new Neck_ScanField() );

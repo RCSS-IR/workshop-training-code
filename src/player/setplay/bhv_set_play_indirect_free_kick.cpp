@@ -42,7 +42,6 @@
 #include "basic_actions/basic_actions.h"
 #include "basic_actions/body_go_to_point.h"
 #include "basic_actions/body_kick_one_step.h"
-#include "basic_actions/body_pass.h"
 #include "basic_actions/neck_scan_field.h"
 #include "basic_actions/neck_turn_to_ball_or_scan.h"
 
@@ -505,7 +504,7 @@ Bhv_SetPlayIndirectFreeKick::doOffenseMove( PlayerAgent * agent )
 {
     const WorldModel & wm = agent->world();
 
-    Vector2D target_point = Strategy::i().getPosition( wm.self().unum() );
+    Vector2D target_point = Strategy::i().getHomePosition( wm, wm.self().unum() );
     target_point.x = std::min( wm.offsideLineX() - 1.0, target_point.x );
 
     double nearest_dist = 1000.0;
@@ -566,7 +565,7 @@ Bhv_SetPlayIndirectFreeKick::doDefenseMove( PlayerAgent * agent )
     const ServerParam & SP = ServerParam::i();
     const WorldModel & wm = agent->world();
 
-    Vector2D target_point = Strategy::i().getPosition( wm.self().unum() );
+    Vector2D target_point = Strategy::i().getHomePosition( wm, wm.self().unum() );
     Vector2D adjusted_point = get_avoid_circle_point( wm, target_point );
 
     dlog.addText( Logger::TEAM,

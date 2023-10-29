@@ -6,20 +6,17 @@ add_executable(sample_player
   basic_actions/bhv_scan_field.cpp
   basic_actions/body_advance_ball2009.cpp
   basic_actions/body_clear_ball2009.cpp
-  basic_actions/body_dribble2008.cpp
   basic_actions/body_go_to_point.cpp
   basic_actions/body_go_to_point_dodge.cpp
   basic_actions/body_hold_ball2008.cpp
   basic_actions/body_intercept2018.cpp
   basic_actions/body_kick_one_step.cpp
   basic_actions/body_kick_to_relative.cpp
-  basic_actions/body_pass.cpp
   basic_actions/body_smart_kick.cpp
   basic_actions/body_stop_ball.cpp
   basic_actions/body_stop_dash.cpp
   basic_actions/focus_move_to_point.cpp
   basic_actions/focus_reset.cpp
-  basic_actions/intention_dribble2008.cpp
   basic_actions/intention_time_limit_action.cpp
   basic_actions/intercept_evaluator.cpp
   basic_actions/kick_table.cpp

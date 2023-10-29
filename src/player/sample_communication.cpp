@@ -283,7 +283,7 @@ SampleCommunication::updateCurrentSender( const PlayerAgent * agent )
         //
         const int goalie_unum = ( wm.ourGoalieUnum() != Unum_Unknown
                                   ? wm.ourGoalieUnum()
-                                  : Strategy::i().goalieUnum() );
+                                  : 1 );
 
         for ( int unum = 1; unum <= 11; ++unum )
         {

@@ -90,7 +90,7 @@ Bhv_BasicMove::execute( PlayerAgent * agent )
         return true;
     }
 
-    const Vector2D target_point = Strategy::i().getPosition( wm.self().unum() );
+    const Vector2D target_point = Strategy::i().getHomePosition( wm, wm.self().unum() );
     const double dash_power = Strategy::get_normal_dash_power( wm );
 
     double dist_thr = wm.ball().distFromSelf() * 0.1;

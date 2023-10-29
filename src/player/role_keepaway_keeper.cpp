@@ -125,7 +125,7 @@ RoleKeepawayKeeper::doMove( PlayerAgent * agent )
         return;
     }
 
-    const Vector2D home_pos = Strategy::i().getPosition( wm.self().unum() );
+    const Vector2D home_pos = Strategy::i().getHomePosition( wm, wm.self().unum() );
 
 
     if ( ! Body_GoToPoint( home_pos,

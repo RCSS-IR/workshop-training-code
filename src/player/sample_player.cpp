@@ -164,9 +164,6 @@ SamplePlayer::initImpl( CmdLineParser & cmd_parser )
 {
     bool result = PlayerAgent::initImpl( cmd_parser );
 
-    // read additional options
-    result &= Strategy::instance().init( cmd_parser );
-
     rcsc::ParamMap my_params( "Additional options" );
 #if 0
     std::string param_file_path = "params";
@@ -191,12 +188,6 @@ SamplePlayer::initImpl( CmdLineParser & cmd_parser )
 
     if ( ! result )
     {
-        return false;
-    }
-
-    if ( ! Strategy::instance().read( config().configDir() ) )
-    {
-        std::cerr << "***ERROR*** Failed to read team strategy." << std::endl;
         return false;
     }
 
@@ -229,9 +220,8 @@ SamplePlayer::actionImpl()
 
 
     //
-    // update strategy and analyzer
+    // update analyzer
     //
-    Strategy::instance().update( world() );
     FieldAnalyzer::instance().update( world() );
 
     //
@@ -260,43 +250,10 @@ SamplePlayer::actionImpl()
 
 
     //
-    // create current role
+    // decision Make
     //
-    SoccerRole::Ptr role_ptr;
-    {
-        role_ptr = Strategy::i().createRole( world().self().unum(), world() );
-
-        if ( ! role_ptr )
-        {
-            std::cerr << config().teamName() << ": "
-                      << world().self().unum()
-                      << " Error. Role is not registerd.\nExit ..."
-                      << std::endl;
-            M_client->setServerAlive( false );
-            return;
-        }
-    }
-
-
-    //
-    // override execute if role accept
-    //
-    if ( role_ptr->acceptExecution( world() ) )
-    {
-        role_ptr->execute( this );
-        return;
-    }
-
-
-    //
-    // play_on mode
-    //
-    if ( world().gameMode().type() == GameMode::PlayOn )
-    {
-        role_ptr->execute( this );
-        return;
-    }
-
+    
+    //ToDo: call decision maker
 
     //
     // penalty kick mode
@@ -559,7 +516,7 @@ SamplePlayer::doPreprocess()
     {
         dlog.addText( Logger::TEAM,
                       __FILE__": before_kick_off" );
-        Vector2D move_point =  Strategy::i().getPosition( wm.self().unum() );
+        Vector2D move_point =  Strategy::i().getHomePosition( wm, wm.self().unum() );
         Bhv_CustomBeforeKickOff( move_point ).execute( this );
         this->setViewAction( new View_Tactical() );
         return true;

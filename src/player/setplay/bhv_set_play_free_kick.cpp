@@ -44,7 +44,6 @@
 #include "basic_actions/body_go_to_point.h"
 #include "basic_actions/body_kick_one_step.h"
 #include "basic_actions/body_clear_ball.h"
-#include "basic_actions/body_pass.h"
 #include "basic_actions/neck_scan_field.h"
 #include "basic_actions/neck_turn_to_ball_or_scan.h"
 
@@ -332,7 +331,7 @@ Bhv_SetPlayFreeKick::doMove( PlayerAgent * agent )
     dlog.addText( Logger::TEAM,
                   __FILE__": (doMove)" );
 
-    Vector2D target_point = Strategy::i().getPosition( wm.self().unum() );
+    Vector2D target_point = Strategy::i().getHomePosition( wm, wm.self().unum() );
 
     if ( wm.getSetPlayCount() > 0
          && wm.self().stamina() > ServerParam::i().staminaMax() * 0.9 )

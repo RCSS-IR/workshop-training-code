@@ -42,7 +42,6 @@
 #include "basic_actions/body_go_to_point.h"
 #include "basic_actions/body_kick_one_step.h"
 #include "basic_actions/body_advance_ball.h"
-#include "basic_actions/body_pass.h"
 #include "basic_actions/neck_scan_field.h"
 #include "basic_actions/neck_turn_to_ball_or_scan.h"
 
@@ -350,7 +349,7 @@ Bhv_SetPlayKickIn::doMove( PlayerAgent * agent )
 {
     const WorldModel & wm = agent->world();
 
-    Vector2D target_point = Strategy::i().getPosition( wm.self().unum() );
+    Vector2D target_point = Strategy::i().getHomePosition( wm, wm.self().unum() );
 
     bool avoid_opponent = false;
     if ( wm.self().stamina() > ServerParam::i().staminaMax() * 0.9 )
