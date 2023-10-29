@@ -38,8 +38,6 @@
 
 #include "intention_wait_after_set_play_kick.h"
 
-#include "planner/bhv_planned_action.h"
-
 #include "basic_actions/basic_actions.h"
 #include "basic_actions/body_go_to_point.h"
 #include "basic_actions/body_kick_one_step.h"
@@ -116,35 +114,7 @@ Bhv_SetPlayFreeKick::doKick( PlayerAgent * agent )
     //
     // pass
     //
-    if ( Bhv_PlannedAction().execute( agent ) )
-    {
-        agent->debugClient().addMessage( "FreeKick:Plan" );
-        agent->setIntention( new IntentionWaitAfterSetPlayKick() );
-        return;
-    }
-    // {
-    //     Vector2D target_point;
-    //     double ball_speed = 0.0;
-    //     if ( Body_Pass::get_best_pass( wm,
-    //                                    &target_point,
-    //                                    &ball_speed,
-    //                                    NULL )
-    //          && ( target_point.x > -25.0
-    //               || target_point.x > wm.ball().pos().x + 10.0 )
-    //          && ball_speed < max_ball_speed * 1.1 )
-    //     {
-    //         ball_speed = std::min( ball_speed, max_ball_speed );
-    //         agent->debugClient().addMessage( "FreeKick:Pass%.3f", ball_speed );
-    //         agent->debugClient().setTarget( target_point );
-    //         dlog.addText( Logger::TEAM,
-    //                       __FILE__":  pass target=(%.1f %.1f) speed=%.2f",
-    //                       target_point.x, target_point.y,
-    //                       ball_speed );
-    //         Body_KickOneStep( target_point, ball_speed ).execute( agent );
-    //         agent->setNeckAction( new Neck_ScanField() );
-    //         return;
-    //     }
-    // }
+    // ToDo: call new pass action(1 kick step)
 
     //
     // kick to the nearest teammate

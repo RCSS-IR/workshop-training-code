@@ -35,7 +35,6 @@
 #include "bhv_set_play.h"
 #include "bhv_prepare_set_play_kick.h"
 #include "bhv_go_to_placed_ball.h"
-#include "bhv_planned_action.h"
 
 #include "intention_wait_after_set_play_kick.h"
 
@@ -138,33 +137,8 @@ Bhv_SetPlayIndirectFreeKick::doKicker( PlayerAgent * agent )
     //
     // pass
     //
-    if ( Bhv_PlannedAction().execute( agent ) )
-    {
-        agent->setIntention( new IntentionWaitAfterSetPlayKick() );
-        return;
-    }
-    // {
-    //     const double max_kick_speed = wm.self().kickRate() * ServerParam::i().maxPower();
-    //     Vector2D target_point;
-    //     double ball_speed = 0.0;
-    //     if  ( Body_Pass::get_best_pass( wm,
-    //                                     &target_point,
-    //                                     &ball_speed,
-    //                                     NULL )
-    //           && target_point.x > 35.0
-    //           && ( target_point.x > wm.self().pos().x - 1.0
-    //                || target_point.x > 48.0 ) )
-    //     {
-    //         ball_speed = std::min( ball_speed, max_kick_speed );
-    //         dlog.addText( Logger::TEAM,
-    //                       __FILE__":  pass to (%.1f %.1f) speed=%.2f",
-    //                       target_point.x, target_point.y,
-    //                       ball_speed );
-    //         Body_KickOneStep( target_point, ball_speed ).execute( agent );
-    //         agent->setNeckAction( new Neck_ScanField() );
-    //         return;
-    //     }
-    // }
+
+    // ToDo: call new pass action(1 kick step)
 
     //
     // wait(2)

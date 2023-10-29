@@ -38,8 +38,6 @@
 
 #include "intention_wait_after_set_play_kick.h"
 
-#include "planner/bhv_planned_action.h"
-
 #include "basic_actions/body_clear_ball.h"
 #include "basic_actions/body_stop_ball.h"
 #include "basic_actions/body_intercept.h"
@@ -296,60 +294,8 @@ Bhv_SetPlayGoalKick::doKickWait( PlayerAgent * agent )
 bool
 Bhv_SetPlayGoalKick::doPass( PlayerAgent * agent )
 {
-    if ( Bhv_PlannedAction().execute( agent ) )
-    {
-        agent->setIntention( new IntentionWaitAfterSetPlayKick() );
-        return true;
-    }
-
-    // const WorldModel & wm = agent->world();
-
-    // Vector2D target_point;
-    // double ball_speed = 0.0;
-    // if  ( Body_Pass::get_best_pass( wm,
-    //                                 &target_point,
-    //                                 &ball_speed,
-    //                                 NULL )
-    //       && target_point.dist( Vector2D(-50.0, 0.0) ) > 20.0
-    //       )
-    // {
-    //     double opp_dist = 100.0;
-    //     const PlayerObject * opp = wm.getOpponentNearestTo( target_point,
-    //                                                         10,
-    //                                                         &opp_dist );
-    //     if ( ! opp
-    //          || opp_dist > 5.0 )
-    //     {
-    //         ball_speed = std::min( ball_speed, wm.self().kickRate() * ServerParam::i().maxPower() );
-
-    //         dlog.addText( Logger::TEAM,
-    //                       __FILE__": pass to (%.1f, %.1f) ball_speed=%.3f",
-    //                       target_point.x, target_point.y,
-    //                       ball_speed );
-
-    //         agent->debugClient().addMessage( "GoalKick:Pass%.3f", ball_speed );
-    //         agent->debugClient().setTarget( target_point );
-    //         agent->debugClient().addLine( wm.ball().pos(), target_point );
-
-    //         Body_KickOneStep( target_point,
-    //                           ball_speed ).execute( agent );
-    //         if ( agent->effector().queuedNextBallKickable() )
-    //         {
-    //             agent->setNeckAction( new Neck_ScanField() );
-    //         }
-    //         else
-    //         {
-    //             agent->setNeckAction( new Neck_TurnToBall() );
-    //         }
-
-    //         return true;
-    //     }
-
-    //     dlog.addText( Logger::TEAM,
-    //                   __FILE__": pass (%.1f, %.1f) found. but opponent exists.",
-    //                   target_point.x, target_point.y );
-    // }
-
+    // ToDo: call new pass action(1 kick step)
+    
     return false;
 }
 

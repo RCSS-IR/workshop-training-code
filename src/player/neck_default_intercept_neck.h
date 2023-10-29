@@ -33,7 +33,6 @@
 #define NECK_DEFAULT_INTERCEPT_NECK_H
 
 #include <rcsc/player/soccer_action.h>
-#include "action_chain_holder.h"
 
 namespace rcsc {
 class PlayerAgent;
@@ -49,8 +48,6 @@ class ActionChainGraph;
 class Neck_DefaultInterceptNeck
     : public rcsc::NeckAction {
 private:
-    const ActionChainGraph & M_chain_graph;
-
     rcsc::ViewAction * M_default_view_act;
     rcsc::NeckAction * M_default_neck_act;
 
@@ -60,26 +57,15 @@ public:
       \brief constructor
      */
     explicit
-    Neck_DefaultInterceptNeck( const ActionChainGraph & chain_graph,
-                               rcsc::ViewAction * view = static_cast< rcsc::ViewAction * >( 0 ),
-                               rcsc::NeckAction * neck = static_cast< rcsc::NeckAction * >( 0 ) )
-        : M_chain_graph( chain_graph ),
-          M_default_view_act( view ),
-          M_default_neck_act( neck )
-      { }
-
-    explicit
     Neck_DefaultInterceptNeck( rcsc::ViewAction * view = static_cast< rcsc::ViewAction * >( 0 ),
                                rcsc::NeckAction * neck = static_cast< rcsc::NeckAction * >( 0 ) )
-        : M_chain_graph( ActionChainHolder::i().graph() ),
-          M_default_view_act( view ),
+        : M_default_view_act( view ),
           M_default_neck_act( neck )
       { }
 
     explicit
     Neck_DefaultInterceptNeck( rcsc::NeckAction * neck = static_cast< rcsc::NeckAction * >( 0 ) )
-        : M_chain_graph( ActionChainHolder::i().graph() ),
-          M_default_view_act( static_cast< rcsc::ViewAction * >( 0 ) ),
+        : M_default_view_act( static_cast< rcsc::ViewAction * >( 0 ) ),
           M_default_neck_act( neck )
       { }
 

@@ -35,10 +35,6 @@
 
 #include "neck_default_intercept_neck.h"
 
-#include "action_chain_graph.h"
-#include "action_chain_holder.h"
-#include "cooperative_action.h"
-
 #include "basic_actions/neck_turn_to_point.h"
 #include "basic_actions/neck_turn_to_ball_and_player.h"
 #include "basic_actions/neck_turn_to_ball_or_scan.h"
@@ -124,43 +120,16 @@ Neck_DefaultInterceptNeck::doTurnToReceiver( PlayerAgent * agent )
         return false;
     }
 
-
-    const CooperativeAction & first_action = M_chain_graph.getFirstAction();
-
-    if ( first_action.category() != CooperativeAction::Pass )
-    {
-        dlog.addText( Logger::TEAM,
-                            __FILE__": (doTurnToReceiver) not a pass type action" );
-        return false;
-    }
-
-    const AbstractPlayerObject * receiver = wm.ourPlayer( first_action.targetPlayerUnum() );
-
-    if ( ! receiver )
-    {
-        dlog.addText( Logger::TEAM,
-                            __FILE__": (doTurnToReceiver) NULL receiver" );
-        return false;
-
-    }
-
-    if ( receiver->posCount() <= 0 )
-    {
-        dlog.addText( Logger::TEAM,
-                      __FILE__": (doTurnToReceiver) receiver[%d] pos_count=%d already seen",
-                      receiver->unum(),
-                      receiver->posCount() );
-        return false;
-    }
-
-
+    // Todo: check if best action is pass and receiver poscount is not 0 else return false
+    return false;
     View_Synch().execute( agent );
 
-    Vector2D face_point = receiver->pos();
-    face_point += receiver->vel();
+    int receiver_unum = 1; //todo set to receiver unum
+    Vector2D face_point = Vector2D(0, 0); //Todo set to reciever pos
+    face_point += Vector2D(0, 0); //Todo + to reciever vel
 
-    if ( receiver->distFromBall() > 5.0
-         && receiver->pos().x < 35.0 )
+    if ( face_point.dist(wm.ball().pos()) > 5.0
+         && face_point.x < 35.0 )
     {
         face_point.x += 3.0;
     }
@@ -175,19 +144,19 @@ Neck_DefaultInterceptNeck::doTurnToReceiver( PlayerAgent * agent )
     {
         dlog.addText( Logger::TEAM,
                       __FILE__": (duTurnToReceiver) receiver[%d] cannot face to face_point=(%.2f %.2f)",
-                      receiver->unum(),
+                      receiver_unum,
                       face_point.x, face_point.y );
         return false;
     }
 
     dlog.addText( Logger::TEAM,
                   __FILE__": (doTurnToReceiver) receiver[%d] face_point=(%.2f %.2f)",
-                  receiver->unum(),
+                  receiver_unum,
                   face_point.x, face_point.y );
 
-    agent->debugClient().setTarget( receiver->unum() );
+    agent->debugClient().setTarget( receiver_unum );
     agent->debugClient().addMessage( "InterceptNeck:toReceiver%d",
-                                     receiver->unum() );
+                                     receiver_unum );
     agent->debugClient().addLine( wm.self().pos(), face_point );
     agent->debugClient().addCircle( face_point, 3.0 );
 
@@ -203,8 +172,7 @@ Neck_DefaultInterceptNeck::doTurnToReceiver( PlayerAgent * agent )
 NeckAction *
 Neck_DefaultInterceptNeck::clone() const
 {
-    return new Neck_DefaultInterceptNeck( M_chain_graph,
-                                          ( M_default_view_act
+    return new Neck_DefaultInterceptNeck( ( M_default_view_act
                                             ? M_default_view_act->clone()
                                             : static_cast< ViewAction * >( 0 ) ),
                                           ( M_default_neck_act

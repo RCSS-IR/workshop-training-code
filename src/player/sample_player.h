@@ -27,8 +27,6 @@
 #ifndef SAMPLE_PLAYER_H
 #define SAMPLE_PLAYER_H
 
-#include "action_generator.h"
-#include "field_evaluator.h"
 #include "communication.h"
 
 #include <rcsc/player/player_agent.h>
@@ -39,9 +37,6 @@ class SamplePlayer
 private:
 
     Communication::Ptr M_communication;
-
-    FieldEvaluator::ConstPtr M_field_evaluator;
-    ActionGenerator::ConstPtr M_action_generator;
 
 public:
 
@@ -81,12 +76,6 @@ protected:
     virtual
     void handlePlayerType();
 
-    virtual
-    FieldEvaluator::ConstPtr createFieldEvaluator() const;
-
-    virtual
-    ActionGenerator::ConstPtr createActionGenerator() const;
-
 private:
 
     bool doPreprocess();
@@ -94,9 +83,6 @@ private:
     bool doForceKick();
     bool doHeardPassReceive();
 
-public:
-    virtual
-    FieldEvaluator::ConstPtr getFieldEvaluator() const;
 };
 
 #endif

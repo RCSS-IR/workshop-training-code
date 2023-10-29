@@ -35,8 +35,6 @@
 
 #include "neck_offensive_intercept_neck.h"
 
-#include "shoot_generator.h"
-
 #include <rcsc/common/logger.h>
 #include <rcsc/common/server_param.h>
 #include <rcsc/player/player_agent.h>
@@ -284,43 +282,24 @@ Neck_OffensiveInterceptNeck::doTurnNeckToShootPoint( PlayerAgent * agent )
         return false;
     }
 
-    const ShootGenerator::Container & cont = ShootGenerator::instance().courses( wm );
-
-    if ( cont.empty() )
-    {
-        dlog.addText( Logger::TEAM,
-                      __FILE__": empty shoot candidate" );
-        return false;
-    }
-
-    ShootGenerator::Container::const_iterator best_shoot
-        = std::min_element( cont.begin(),
-                            cont.end(),
-                            ShootGenerator::ScoreCmp() );
-
-    if ( best_shoot == cont.end() )
-    {
-        dlog.addText( Logger::TEAM,
-                      __FILE__": no best shoot?" );
-        return false;
-    }
+    Vector2D shoot_target(52, 0);
 
     const double angle_buf = 10.0; // Magic Number
 
-    if ( ! agent->effector().queuedNextCanSeeWithTurnNeck( best_shoot->target_point_,
+    if ( ! agent->effector().queuedNextCanSeeWithTurnNeck( shoot_target,
                                                            angle_buf ) )
     {
         dlog.addText( Logger::TEAM,
                       __FILE__": cannot look the shoot point(%.2f %.2f)",
-                      best_shoot->target_point_.x,
-                      best_shoot->target_point_.y );
+                      shoot_target.x,
+                      shoot_target.y );
         return false;
     }
 
     if ( wm.seeTime() == wm.time() )
     {
         double current_width = wm.self().viewWidth().width();
-        AngleDeg target_angle = ( best_shoot->target_point_ - wm.self().pos() ).th();
+        AngleDeg target_angle = ( shoot_target - wm.self().pos() ).th();
         double angle_diff = ( target_angle - wm.self().face() ).abs();
 
         if ( angle_diff < current_width*0.5 - angle_buf )
@@ -329,19 +308,19 @@ Neck_OffensiveInterceptNeck::doTurnNeckToShootPoint( PlayerAgent * agent )
                           __FILE__": already seen. width=%.1f, diff=%.1f. shoot point(%.2f %.2f)",
                           current_width,
                           angle_diff,
-                          best_shoot->target_point_.x,
-                          best_shoot->target_point_.y );
+                          shoot_target.x,
+                          shoot_target.y );
             return false;
         }
     }
 
     dlog.addText( Logger::TEAM,
                   __FILE__": turn_neck to the shoot point(%.2f %.2f)",
-                  best_shoot->target_point_.x,
-                  best_shoot->target_point_.y );
+                  shoot_target.x,
+                  shoot_target.y );
     agent->debugClient().addMessage( "OffenseNeck:Shoot" );
 
-    Neck_TurnToPoint( best_shoot->target_point_ ).execute( agent );
+    Neck_TurnToPoint( shoot_target ).execute( agent );
 
     return true;
 }

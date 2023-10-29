@@ -28,37 +28,6 @@ add_executable(sample_player
   basic_actions/neck_turn_to_player_or_scan.cpp
   basic_actions/neck_turn_to_low_conf_teammate.cpp
   basic_actions/view_synch.cpp
-  planner/actgen_cross.cpp
-  planner/actgen_direct_pass.cpp
-  planner/actgen_self_pass.cpp
-  planner/actgen_shoot.cpp
-  planner/actgen_short_dribble.cpp
-  planner/actgen_simple_dribble.cpp
-  planner/actgen_strict_check_pass.cpp
-  planner/action_chain_graph.cpp
-  planner/action_chain_holder.cpp
-  planner/bhv_planned_action.cpp
-  planner/bhv_normal_dribble.cpp
-  planner/bhv_pass_kick_find_receiver.cpp
-  planner/bhv_strict_check_shoot.cpp
-  planner/body_force_shoot.cpp
-  planner/clear_ball.cpp
-  planner/clear_generator.cpp
-  planner/cooperative_action.cpp
-  planner/cross_generator.cpp
-  planner/dribble.cpp
-  planner/field_analyzer.cpp
-  planner/hold_ball.cpp
-  planner/neck_turn_to_receiver.cpp
-  planner/pass.cpp
-  planner/predict_state.cpp
-  planner/self_pass_generator.cpp
-  planner/shoot.cpp
-  planner/shoot_generator.cpp
-  planner/short_dribble_generator.cpp
-  planner/simple_pass_checker.cpp
-  planner/strict_check_pass_generator.cpp
-  planner/tackle_generator.cpp
   setplay/bhv_go_to_placed_ball.cpp
   setplay/bhv_prepare_set_play_kick.cpp
   setplay/bhv_set_play.cpp
@@ -83,7 +52,6 @@ add_executable(sample_player
   intention_receive.cpp
   keepaway_communication.cpp
   sample_communication.cpp
-  sample_field_evaluator.cpp
   sample_freeform_message_parser.cpp
   sample_player.cpp
   strategy.cpp

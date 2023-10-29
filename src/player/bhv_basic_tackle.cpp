@@ -30,8 +30,6 @@
 
 #include "bhv_basic_tackle.h"
 
-#include "tackle_generator.h"
-
 #include "basic_actions/neck_turn_to_ball_or_scan.h"
 #include "basic_actions/neck_turn_to_point.h"
 
@@ -389,25 +387,27 @@ Bhv_BasicTackle::executeV14( PlayerAgent * agent,
 {
     const WorldModel & wm = agent->world();
 
-    const TackleGenerator::TackleResult & result
-        = TackleGenerator::instance().bestResult( wm );
+    //todo implement new tackle
+    
+    // const TackleGenerator::TackleResult & result
+    //     = TackleGenerator::instance().bestResult( wm );
 
-    Vector2D ball_next = wm.ball().pos() + result.ball_vel_;
+    // Vector2D ball_next = wm.ball().pos() + result.ball_vel_;
 
-    dlog.addText( Logger::TEAM,
-                  __FILE__": (executeV14) %s angle=%.0f resultVel=(%.2f %.2f) ballNext=(%.2f %.2f)",
-                  use_foul ? "foul" : "tackle",
-                  result.tackle_angle_.degree(),
-                  result.ball_vel_.x, result.ball_vel_.y,
-                  ball_next.x, ball_next.y );
-    agent->debugClient().addMessage( "Basic%s%.0f",
-                                     use_foul ? "Foul" : "Tackle",
-                                     result.tackle_angle_.degree() );
+    // dlog.addText( Logger::TEAM,
+    //               __FILE__": (executeV14) %s angle=%.0f resultVel=(%.2f %.2f) ballNext=(%.2f %.2f)",
+    //               use_foul ? "foul" : "tackle",
+    //               result.tackle_angle_.degree(),
+    //               result.ball_vel_.x, result.ball_vel_.y,
+    //               ball_next.x, ball_next.y );
+    // agent->debugClient().addMessage( "Basic%s%.0f",
+    //                                  use_foul ? "Foul" : "Tackle",
+    //                                  result.tackle_angle_.degree() );
 
-    double tackle_dir = ( result.tackle_angle_ - wm.self().body() ).degree();
+    // double tackle_dir = ( result.tackle_angle_ - wm.self().body() ).degree();
 
-    agent->doTackle( tackle_dir, use_foul );
-    agent->setNeckAction( new Neck_TurnToPoint( ball_next ) );
+    // agent->doTackle( tackle_dir, use_foul );
+    // agent->setNeckAction( new Neck_TurnToPoint( ball_next ) );
 
     return true;
 }

@@ -31,10 +31,6 @@
 #include "sample_player.h"
 
 #include "strategy.h"
-#include "field_analyzer.h"
-
-#include "action_chain_holder.h"
-#include "sample_field_evaluator.h"
 
 #include "sample_communication.h"
 #include "keepaway_communication.h"
@@ -46,7 +42,6 @@
 #include "bhv_set_play_indirect_free_kick.h"
 
 #include "bhv_custom_before_kick_off.h"
-#include "bhv_strict_check_shoot.h"
 
 #include "view_tactical.h"
 
@@ -92,9 +87,6 @@ SamplePlayer::SamplePlayer()
     : PlayerAgent(),
       M_communication()
 {
-    M_field_evaluator = createFieldEvaluator();
-    M_action_generator = createActionGenerator();
-
     std::shared_ptr< AudioMemory > audio_memory( new AudioMemory );
 
     M_worldmodel.setAudioMemory( audio_memory );
@@ -216,21 +208,6 @@ SamplePlayer::actionImpl()
                   << std::endl;
     }
 
-
-    //
-    // update analyzer
-    //
-    FieldAnalyzer::instance().update( world() );
-
-    //
-    // prepare action chain
-    //
-    M_field_evaluator = createFieldEvaluator();
-    M_action_generator = createActionGenerator();
-
-    ActionChainHolder::instance().setFieldEvaluator( M_field_evaluator );
-    ActionChainHolder::instance().setActionGenerator( M_action_generator );
-
     //
     // special situations (tackle, objects accuracy, intention...)
     //
@@ -240,12 +217,6 @@ SamplePlayer::actionImpl()
                       __FILE__": preprocess done" );
         return;
     }
-
-    //
-    // update action chain
-    //
-    ActionChainHolder::instance().update( world() );
-
 
     //
     // decision Make
@@ -600,10 +571,10 @@ SamplePlayer::doShoot()
 {
     const WorldModel & wm = this->world();
 
+    // TODO: call new shoot decision maker
     if ( wm.gameMode().type() != GameMode::IndFreeKick_
          && wm.time().stopped() == 0
-         && wm.self().isKickable()
-         && Bhv_StrictCheckShoot().execute( this ) )
+         && wm.self().isKickable() )
     {
         dlog.addText( Logger::TEAM,
                       __FILE__": shooted" );
@@ -713,90 +684,4 @@ SamplePlayer::doHeardPassReceive()
                                               wm.time() ) );
 
     return true;
-}
-
-/*-------------------------------------------------------------------*/
-/*!
-
-*/
-FieldEvaluator::ConstPtr
-SamplePlayer::getFieldEvaluator() const
-{
-    return M_field_evaluator;
-}
-
-/*-------------------------------------------------------------------*/
-/*!
-
-*/
-FieldEvaluator::ConstPtr
-SamplePlayer::createFieldEvaluator() const
-{
-    return FieldEvaluator::ConstPtr( new SampleFieldEvaluator );
-}
-
-
-/*-------------------------------------------------------------------*/
-/*!
-*/
-#include "actgen_cross.h"
-#include "actgen_direct_pass.h"
-#include "actgen_self_pass.h"
-#include "actgen_strict_check_pass.h"
-#include "actgen_short_dribble.h"
-#include "actgen_simple_dribble.h"
-#include "actgen_shoot.h"
-#include "actgen_action_chain_length_filter.h"
-
-ActionGenerator::ConstPtr
-SamplePlayer::createActionGenerator() const
-{
-    CompositeActionGenerator * g = new CompositeActionGenerator();
-
-    //
-    // shoot
-    //
-    g->addGenerator( new ActGen_RangeActionChainLengthFilter
-                     ( new ActGen_Shoot(),
-                       2, ActGen_RangeActionChainLengthFilter::MAX ) );
-
-    //
-    // strict check pass
-    //
-    g->addGenerator( new ActGen_MaxActionChainLengthFilter
-                     ( new ActGen_StrictCheckPass(), 1 ) );
-
-    //
-    // cross
-    //
-    g->addGenerator( new ActGen_MaxActionChainLengthFilter
-                     ( new ActGen_Cross(), 1 ) );
-
-    //
-    // direct pass
-    //
-    // g->addGenerator( new ActGen_RangeActionChainLengthFilter
-    //                  ( new ActGen_DirectPass(),
-    //                    2, ActGen_RangeActionChainLengthFilter::MAX ) );
-
-    //
-    // short dribble
-    //
-    g->addGenerator( new ActGen_MaxActionChainLengthFilter
-                     ( new ActGen_ShortDribble(), 1 ) );
-
-    //
-    // self pass (long dribble)
-    //
-    g->addGenerator( new ActGen_MaxActionChainLengthFilter
-                     ( new ActGen_SelfPass(), 1 ) );
-
-    //
-    // simple dribble
-    //
-    // g->addGenerator( new ActGen_RangeActionChainLengthFilter
-    //                  ( new ActGen_SimpleDribble(),
-    //                    2, ActGen_RangeActionChainLengthFilter::MAX ) );
-
-    return ActionGenerator::ConstPtr( g );
 }
