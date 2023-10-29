@@ -35,8 +35,6 @@
 
 #include "strategy.h"
 
-#include "soccer_role.h"
-
 #include <rcsc/player/intercept_table.h>
 #include <rcsc/player/world_model.h>
 

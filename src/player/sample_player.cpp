@@ -36,8 +36,6 @@
 #include "action_chain_holder.h"
 #include "sample_field_evaluator.h"
 
-#include "soccer_role.h"
-
 #include "sample_communication.h"
 #include "keepaway_communication.h"
 #include "sample_freeform_message_parser.h"

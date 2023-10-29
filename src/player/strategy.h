@@ -32,8 +32,6 @@
 #ifndef STRATEGY_H
 #define STRATEGY_H
 
-#include "soccer_role.h"
-
 #include <rcsc/geom/vector_2d.h>
 
 #include <boost/shared_ptr.hpp>

@@ -81,18 +81,6 @@ add_executable(sample_player
   neck_offensive_intercept_neck.cpp
   view_tactical.cpp
   intention_receive.cpp
-  soccer_role.cpp
-  role_center_back.cpp
-  role_center_forward.cpp
-  role_defensive_half.cpp
-  role_goalie.cpp
-  role_offensive_half.cpp
-  role_sample.cpp
-  role_side_back.cpp
-  role_side_forward.cpp
-  role_side_half.cpp
-  role_keepaway_keeper.cpp
-  role_keepaway_taker.cpp
   keepaway_communication.cpp
   sample_communication.cpp
   sample_field_evaluator.cpp
