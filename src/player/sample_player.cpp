@@ -577,10 +577,10 @@ SamplePlayer::doShoot()
 {
     const WorldModel & wm = this->world();
 
-    // TODO: call new shoot decision maker
     if ( wm.gameMode().type() != GameMode::IndFreeKick_
          && wm.time().stopped() == 0
-         && wm.self().isKickable() )
+         && wm.self().isKickable()
+         && Bhv_BasicOffensiveKick().shoot( this ) )
     {
         dlog.addText( Logger::TEAM,
                       __FILE__": shooted" );

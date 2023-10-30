@@ -35,6 +35,7 @@
 #include "bhv_set_play.h"
 #include "bhv_prepare_set_play_kick.h"
 #include "bhv_go_to_placed_ball.h"
+#include "bhv_basic_offensive_kick.h"
 
 #include "intention_wait_after_set_play_kick.h"
 
@@ -114,7 +115,7 @@ Bhv_SetPlayFreeKick::doKick( PlayerAgent * agent )
     //
     // pass
     //
-    // ToDo: call new pass action(1 kick step)
+    Bhv_BasicOffensiveKick().pass(agent, 1);
 
     //
     // kick to the nearest teammate

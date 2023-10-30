@@ -121,7 +121,7 @@ bool Bhv_BasicOffensiveKick::shoot(rcsc::PlayerAgent *agent)
     return true;
 }
 
-bool Bhv_BasicOffensiveKick::pass(PlayerAgent *agent)
+bool Bhv_BasicOffensiveKick::pass(PlayerAgent *agent, int kick_count)
 {
     const WorldModel &wm = agent->world();
     std::vector<Vector2D> targets;
@@ -149,9 +149,9 @@ bool Bhv_BasicOffensiveKick::pass(PlayerAgent *agent)
             best_target = targets[i];
     }
     if (wm.gameMode().type() != GameMode::PlayOn)
-        Body_SmartKick(best_target, 3, 2.5, 1).execute(agent);
+        Body_SmartKick(best_target, kick_count, 2.5, 1).execute(agent);
     else
-        Body_SmartKick(best_target, 3, 2.5, 2).execute(agent);
+        Body_SmartKick(best_target, kick_count, 2.5, 2).execute(agent);
     return true;
 }
 

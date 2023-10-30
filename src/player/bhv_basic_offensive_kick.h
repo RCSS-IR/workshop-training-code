@@ -36,8 +36,8 @@ private:
 public:
     bool execute(rcsc::PlayerAgent *agent);
     bool shoot(rcsc::PlayerAgent *agent);
-    bool pass_to_forward(rcsc::PlayerAgent *agent);
-    bool pass(rcsc::PlayerAgent *agent);
+    // bool pass_to_forward(rcsc::PlayerAgent *agent, int kick_count);
+    bool pass(rcsc::PlayerAgent *agent, int kick_count = 3);
     bool dribble(rcsc::PlayerAgent *agent);
     bool clearball(rcsc::PlayerAgent *agent);
 };

@@ -34,6 +34,7 @@
 
 #include "bhv_goalie_chase_ball.h"
 #include "bhv_goalie_basic_move.h"
+#include "bhv_basic_offensive_kick.h"
 
 #include "setplay/bhv_go_to_placed_ball.h"
 
@@ -814,13 +815,9 @@ Bhv_PenaltyKick::doDribble( PlayerAgent * agent )
 #else
         bool dodge_mode = false;
 #endif
-    // TODO: Use new dribble here
-        // Body_Dribble2008( drib_target,
-        //                   2.0,
-        //                   drib_power,
-        //                   drib_dashes,
-        //                   dodge_mode
-        //                   ).execute( agent );
+
+    Bhv_BasicOffensiveKick().dribble(agent);
+    
     }
 
     if ( opp_goalie )
