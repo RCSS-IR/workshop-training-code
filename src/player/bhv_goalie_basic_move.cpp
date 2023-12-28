@@ -31,7 +31,7 @@
 #include "bhv_goalie_basic_move.h"
 
 #include "bhv_basic_tackle.h"
-#include "neck_goalie_turn_neck.h"
+#include "extensions/neck_goalie_turn_neck.h"
 
 #include "basic_actions/basic_actions.h"
 #include "basic_actions/body_go_to_point.h"

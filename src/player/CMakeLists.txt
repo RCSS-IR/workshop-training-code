@@ -38,25 +38,27 @@ add_executable(sample_player
   setplay/bhv_set_play_kick_off.cpp
   setplay/bhv_their_goal_kick_move.cpp
   setplay/intention_wait_after_set_play_kick.cpp
+  extensions/bhv_custom_before_kick_off.cpp
+  extensions/bhv_goalie_chase_ball.cpp
+  extensions/bhv_goalie_free_kick.cpp
+  extensions/neck_default_intercept_neck.cpp
+  extensions/neck_goalie_turn_neck.cpp
+  extensions/neck_offensive_intercept_neck.cpp
+  extensions/view_tactical.cpp
+  extensions/intention_receive.cpp
+  extensions/keepaway_communication.cpp
+  extensions/sample_communication.cpp
+  extensions/sample_freeform_message_parser.cpp
   bhv_basic_move.cpp
   bhv_basic_offensive_kick.cpp
   bhv_basic_tackle.cpp
-  bhv_custom_before_kick_off.cpp
   bhv_goalie_basic_move.cpp
-  bhv_goalie_chase_ball.cpp
-  bhv_goalie_free_kick.cpp
   bhv_penalty_kick.cpp
-  neck_default_intercept_neck.cpp
-  neck_goalie_turn_neck.cpp
-  neck_offensive_intercept_neck.cpp
-  view_tactical.cpp
-  intention_receive.cpp
-  keepaway_communication.cpp
-  sample_communication.cpp
-  sample_freeform_message_parser.cpp
   sample_player.cpp
   strategy.cpp
   main_player.cpp
+  role_goalie.cpp
+  role_player.cpp
   )
 
 

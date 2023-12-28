@@ -32,7 +32,7 @@
 
 #include "strategy.h"
 
-#include "bhv_goalie_chase_ball.h"
+#include "extensions/bhv_goalie_chase_ball.h"
 #include "bhv_goalie_basic_move.h"
 #include "bhv_basic_offensive_kick.h"
 

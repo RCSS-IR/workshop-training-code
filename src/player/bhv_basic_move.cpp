@@ -47,7 +47,7 @@
 #include <rcsc/common/logger.h>
 #include <rcsc/common/server_param.h>
 
-#include "neck_offensive_intercept_neck.h"
+#include "extensions/neck_offensive_intercept_neck.h"
 
 using namespace rcsc;
 
@@ -74,6 +74,7 @@ Bhv_BasicMove::execute( PlayerAgent * agent )
     const int self_min = wm.interceptTable().selfStep();
     const int mate_min = wm.interceptTable().teammateStep();
     const int opp_min = wm.interceptTable().opponentStep();
+    const int our_min = std::min( self_min, mate_min );
 
     if ( ! wm.kickableTeammate()
          && ( self_min <= 3
@@ -90,6 +91,14 @@ Bhv_BasicMove::execute( PlayerAgent * agent )
         return true;
     }
 
+    if (our_min < opp_min){
+        // Do offensive move like unmark or possitioning
+    }
+    else
+    {
+        // Do defensive move like mark or block
+    }
+    // Go to home position
     const Vector2D home_pos = Strategy::i().getHomePosition( wm, wm.self().unum() );
     const double dash_power = Strategy::get_normal_dash_power( wm );
 

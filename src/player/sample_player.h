@@ -27,7 +27,7 @@
 #ifndef SAMPLE_PLAYER_H
 #define SAMPLE_PLAYER_H
 
-#include "communication.h"
+#include "extensions/communication.h"
 
 #include <rcsc/player/player_agent.h>
 #include <vector>

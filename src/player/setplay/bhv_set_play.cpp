@@ -32,7 +32,7 @@
 
 #include "strategy.h"
 
-#include "bhv_goalie_free_kick.h"
+#include "../extensions/bhv_goalie_free_kick.h"
 #include "bhv_set_play_free_kick.h"
 #include "bhv_set_play_goal_kick.h"
 #include "bhv_set_play_kick_off.h"

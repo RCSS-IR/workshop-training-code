@@ -32,9 +32,9 @@
 
 #include "strategy.h"
 
-#include "sample_communication.h"
-#include "keepaway_communication.h"
-#include "sample_freeform_message_parser.h"
+#include "extensions/sample_communication.h"
+#include "extensions/keepaway_communication.h"
+#include "extensions/sample_freeform_message_parser.h"
 
 #include "bhv_basic_offensive_kick.h"
 #include "bhv_basic_move.h"
@@ -44,11 +44,14 @@
 #include "bhv_set_play_kick_in.h"
 #include "bhv_set_play_indirect_free_kick.h"
 
-#include "bhv_custom_before_kick_off.h"
+#include "extensions/bhv_custom_before_kick_off.h"
 
-#include "view_tactical.h"
+#include "extensions/view_tactical.h"
 
-#include "intention_receive.h"
+#include "extensions/intention_receive.h"
+
+#include "role_goalie.h"
+#include "role_player.h"
 
 #include "basic_actions/basic_actions.h"
 #include "basic_actions/bhv_emergency.h"
@@ -217,27 +220,24 @@ void SamplePlayer::actionImpl()
         return;
     }
 
-    // MOVE ALL TO PLANNERS
-
     //
     // decision Make
     //
 
     if (this->world().gameMode().type() == GameMode::PlayOn)
     {
-        if (this->world().self().isKickable())
-        {
-            if (Bhv_BasicOffensiveKick().execute(this))
-            {
-                dlog.addText(Logger::TEAM,
-                             __FILE__ ": bhv_basic_offensive_kick");
-                return;
-            }
-        }
-        if (Bhv_BasicMove().execute(this))
+        if (this->world().self().goalie())
         {
             dlog.addText(Logger::TEAM,
-                         __FILE__ ": bhv_basic_move");
+                         __FILE__ ": goalie");
+            RoleGoalie().execute(this);
+            return;
+        }
+        else
+        {
+            dlog.addText(Logger::TEAM,
+                         __FILE__ ": player");
+            RolePlayer().execute(this);
             return;
         }
     }
