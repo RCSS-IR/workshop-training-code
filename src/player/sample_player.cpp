@@ -37,6 +37,8 @@
 #include "sample_freeform_message_parser.h"
 
 #include "bhv_basic_offensive_kick.h"
+#include "bhv_basic_move.h"
+
 #include "bhv_penalty_kick.h"
 #include "bhv_set_play.h"
 #include "bhv_set_play_kick_in.h"
@@ -221,11 +223,23 @@ void SamplePlayer::actionImpl()
     // decision Make
     //
 
-    if (Bhv_BasicOffensiveKick().execute(this))
+    if (this->world().gameMode().type() == GameMode::PlayOn)
     {
-        dlog.addText(Logger::TEAM,
-                     __FILE__ ": bhv_basic_offensive_kick");
-        return;
+        if (this->world().self().isKickable())
+        {
+            if (Bhv_BasicOffensiveKick().execute(this))
+            {
+                dlog.addText(Logger::TEAM,
+                             __FILE__ ": bhv_basic_offensive_kick");
+                return;
+            }
+        }
+        if (Bhv_BasicMove().execute(this))
+        {
+            dlog.addText(Logger::TEAM,
+                         __FILE__ ": bhv_basic_move");
+            return;
+        }
     }
 
     //
