@@ -385,7 +385,7 @@ bool
 Bhv_BasicTackle::executeV14( PlayerAgent * agent,
                              const bool use_foul )
 {
-    const WorldModel & wm = agent->world();
+    // const WorldModel & wm = agent->world();
 
     //todo implement new tackle
     

@@ -207,7 +207,6 @@ void
 Bhv_GoalieFreeKick::doKick( PlayerAgent * agent )
 {
     Vector2D target_point;
-    double pass_speed = 0.0;
     if (Bhv_BasicOffensiveKick().pass(agent, 1)){
             dlog.addText( Logger::TEAM,
                           __FILE__": bhv_basic_offensive_kick pass");    

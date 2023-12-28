@@ -651,7 +651,6 @@ Bhv_PenaltyKick::doDribble( PlayerAgent * agent )
 
     const double base_target_abs_y = ServerParam::i().goalHalfWidth() + 4.0;
     Vector2D drib_target = goal_c;
-    double drib_power = ServerParam::i().maxDashPower();
     int drib_dashes = 6;
 
     /////////////////////////////////////////////////
@@ -804,17 +803,6 @@ Bhv_PenaltyKick::doDribble( PlayerAgent * agent )
     }
     else
     {
-#if 0
-        bool dodge_mode = true;
-        if ( opp_goalie == NULL
-             || ( ( opp_goalie->pos() - agent->world().self().pos() ).th()
-                  - ( drib_target - agent->world().self().pos() ).th() ).abs() > 45.0 )
-        {
-            dodge_mode = false;
-        }
-#else
-        bool dodge_mode = false;
-#endif
 
     Bhv_BasicOffensiveKick().dribble(agent);
     
