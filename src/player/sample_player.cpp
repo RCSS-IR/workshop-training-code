@@ -58,7 +58,6 @@
 #include "basic_actions/view_synch.h"
 #include "basic_actions/kick_table.h"
 
-#include <rcsc/formation/formation.h>
 #include <rcsc/player/intercept_table.h>
 #include <rcsc/player/say_message_builder.h>
 #include <rcsc/player/audio_sensor.h>

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(helios-base VERSION 2023.03)
+project(starter-base VERSION 2023.03)
 
 if(CMAKE_VERSION VERSION_LESS "3.7.0")
     set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -16,7 +16,7 @@ endif()
 set(CMAKE_CXX_FLAGS "-W -Wall")
 
 # check librcsc
-set(LIBRCSC_INSTALL_DIR "$ENV{HOME}/.local;$ENV{HOME}/local" CACHE PATH "The path where librcsc is installed.")
+set(LIBRCSC_INSTALL_DIR "$ENV{HOME}/local/starter" CACHE PATH "The path where librcsc is installed.")
 
 find_library(LIBRCSC_LIB NAMES rcsc
   PATHS ${LIBRCSC_INSTALL_DIR}
