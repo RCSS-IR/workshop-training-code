@@ -6,3 +6,5 @@ start.sh
 train.sh
 
 build/
+
+binary/
