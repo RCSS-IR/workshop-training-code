@@ -1,10 +1,5 @@
 // -*-c++-*-
 
-/*!
-  \file strategy.h
-  \brief team strategy manager Header File
-*/
-
 /*
  *Copyright:
 
@@ -29,47 +24,31 @@
 
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STRATEGY_H
-#define STRATEGY_H
-
-#include <rcsc/geom/vector_2d.h>
-
-#include <boost/shared_ptr.hpp>
-#include <map>
-#include <vector>
-#include <string>
-
-// # define USE_GENERIC_FACTORY 1
+#ifndef ROLE_DEFENSIVE_HALF_H
+#define ROLE_DEFENSIVE_HALF_H
+#include <memory>
 
 namespace rcsc {
-class CmdLineParser;
+class PlayerAgent;
 class WorldModel;
 }
 
-class Strategy {
+class RolePlayer {
 public:
-    // private for singleton
-    Strategy();
 
-    // not used
-    Strategy( const Strategy & );
-    const Strategy & operator=( const Strategy & );
+    RolePlayer()
+      { }
 
-    static
-    Strategy & instance();
+    ~RolePlayer()
+      { }
 
-    static
-    const
-    Strategy & i()
-      {
-          return instance();
-      }
+    bool execute( rcsc::PlayerAgent * agent );
 
-    static
-    rcsc::Vector2D getHomePosition(const rcsc::WorldModel & wm, int self_unum);
+private:
 
-    static
-    double get_normal_dash_power( const rcsc::WorldModel & wm );
+    void doKick( rcsc::PlayerAgent * agent );
+    void doMove( rcsc::PlayerAgent * agent );
 };
+
 
 #endif

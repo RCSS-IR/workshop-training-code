@@ -1,9 +1,12 @@
-# HELIOS Base
+# StarterAgent2D Base
 [![GitHub license](https://img.shields.io/github/license/helios-base/helios-base)](https://github.com/helios-base/helios-base/blob/master/LISENCE)
 
 helios-base is a sample team for the RoboCup Soccer 2D Simulator.
-All programs can work with rcssserver-16.
+StarterAgent2D base is a simplified version of helios-base for the RoboCup Soccer 2D Simulator.
+All programs can work with rcssserver-18.
 
+- IranOpen RoboCup Soccer Simulator: https://rcss.ir/
+- IranOpen RoboCup Soccer Simulator GitHub: https://github.com/RCSS-IR/
 - The RoboCup Soccer Simulator: http://github.com/rcsoccersim/
 - RoboCup Official Homepage: http://www.robocup.org/
 
@@ -11,39 +14,29 @@ All programs can work with rcssserver-16.
 
 The latest helios-base depends on the following libraries:
  - Boost 1.38 or later https://www.boost.org/
- - The latest librcsc https://github.com/helios-base/librcsc
+ - The latest starter librcsc https://github.com/RCSS-IR/StarterLibRCSC-V2
 
 In the case of Ubuntu 16.04 or later, execute the following commands for installing a basic development environment:
 ```
 sudo apt update
-sudo apt install build-essential libboost-all-dev
+sudo apt install build-essential libboost-all-dev cmake
 ```
-And, install librcsc.
+And, install starter librcsc.
 
-To build binaries, execute commands from the root of source directory:
+To build the team, execute commands from the root of source directory:
 ```
-./bootstrap
-./configure
+mkdir build
+cd build
+cmake ..
 make
 ```
 
-To start the agent2d team, invoke the start script in `src` directory.
+To start the agent2d team, invoke the start script in `build/bin` directory.
 ```
 ./start.sh
 ```
 
-## Configuring
-
-You may need to configure the build settings if you installed librcsc to an unusual location. 
-You can specify the installed location of librcsc by using `--with-librcsc` option as follows:
-```
-./configure --with-librcsc=/path/to/librcsc
-```
-Usually, this value is the same as `--prefix` option of configuring librcsc.
-You may also need to set the environment variable `LD_LIBRARY_PATH`.
-
-See `./configure --help` for others options.
-
+To create a binary, you can use `make-binary.sh` script.
 
 ## References
 
@@ -55,6 +48,9 @@ World XVII, Lecture Notes in Artificial Intelligence, Springer Verlag,
 Berlin, 2014. http://dx.doi.org/10.1007/978-3-662-44468-9_46
 
 Related works:
+- Zare N, Amini O, Sayareh A, Sarvmaili M, Firouzkouhi A, Rad SR, Matwin S, Soares A. Cyrus2D Base: Source Code Base for RoboCup 2D Soccer Simulation League. InRoboCup 2022: Robot World Cup XXV 2023 Mar 24 (pp. 140-151). Cham: Springer International Publishing. https://arxiv.org/pdf/2211.08585.pdf
+- Zare N, Sarvmaili M, Sayareh A, Amini O, Matwin S, Soares A. Engineering Features to Improve Pass Prediction in Soccer Simulation 2D Games. InRobot World Cup 2022 (pp. 140-152). Springer, Cham. https://link.springer.com/chapter/10.1007/978-3-030-98682-7_12
+- Zare N, Amini O, Sayareh A, Sarvmaili M, Firouzkouhi A, Matwin S, Soares A. Improving Dribbling, Passing, and Marking Actions in Soccer Simulation 2D Games Using Machine Learning. InRobot World Cup 2021 Jun 22 (pp. 340-351). Springer, Cham. https://link.springer.com/chapter/10.1007/978-3-030-98682-7_28
 - Hidehisa Akiyama, Daisuke Katagami, Katsumi Nitta, Team Formation Construction Using a GUI Tool in the RoboCup Soccer Simulation, SCIS & ISIS, 2006, Volume 2006, SCIS & ISIS 2006, Session ID TH-D2-5, Pages 80-85, Released September 12, 2008, https://doi.org/10.14864/softscis.2006.0.80.0
 - Hidehisa Akiyama, Daisuke Katagami, Katsumi Nitta, Training of Agent Positioning using Human's Instruction, Journal of Advanced Computational Intelligence and Intelligent Informatics, Vol. 11 No.8, pp.998--1006, 2007-10-20. https://doi.org/10.20965/jaciii.2007.p0998
 - 秋山 英久, 野田 五十樹, エージェント配置問題における三角形分割を利用した近似モデル, 人工知能学会論文誌, 2008, 23 巻, 4 号, p. 255-267, 公開日 2008/04/24, Online ISSN 1346-8030, Print ISSN 1346-0714, https://doi.org/10.1527/tjsai.23.255

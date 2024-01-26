@@ -29,15 +29,15 @@
 
 #include <rcsc/game_time.h>
 
-#include "soccer_role.h"
+namespace rcsc {
+class PlayerAgent;
+class WorldModel;
+}
 
-class RoleGoalie
-    : public SoccerRole {
+class RoleGoalie {
 private:
 
 public:
-
-    static const std::string NAME;
 
     RoleGoalie()
       { }
@@ -47,23 +47,7 @@ public:
           //std::cerr << "delete RoleGoalie" << std::endl;
       }
 
-    virtual
     bool execute( rcsc::PlayerAgent * agent );
-
-
-    static
-    const
-    std::string & name()
-      {
-          return NAME;
-      }
-
-    static
-    SoccerRole::Ptr create()
-      {
-          SoccerRole::Ptr ptr( new RoleGoalie() );
-          return ptr;
-      }
 
 private:
     void doKick( rcsc::PlayerAgent * agent );

@@ -31,28 +31,27 @@
 #include "sample_player.h"
 
 #include "strategy.h"
-#include "field_analyzer.h"
 
-#include "action_chain_holder.h"
-#include "sample_field_evaluator.h"
+#include "extensions/sample_communication.h"
+#include "extensions/keepaway_communication.h"
+#include "extensions/sample_freeform_message_parser.h"
 
-#include "soccer_role.h"
-
-#include "sample_communication.h"
-#include "keepaway_communication.h"
-#include "sample_freeform_message_parser.h"
+#include "bhv_basic_offensive_kick.h"
+#include "bhv_basic_move.h"
 
 #include "bhv_penalty_kick.h"
 #include "bhv_set_play.h"
 #include "bhv_set_play_kick_in.h"
 #include "bhv_set_play_indirect_free_kick.h"
 
-#include "bhv_custom_before_kick_off.h"
-#include "bhv_strict_check_shoot.h"
+#include "extensions/bhv_custom_before_kick_off.h"
 
-#include "view_tactical.h"
+#include "extensions/view_tactical.h"
 
-#include "intention_receive.h"
+#include "extensions/intention_receive.h"
+
+#include "role_goalie.h"
+#include "role_player.h"
 
 #include "basic_actions/basic_actions.h"
 #include "basic_actions/bhv_emergency.h"
@@ -64,7 +63,6 @@
 #include "basic_actions/view_synch.h"
 #include "basic_actions/kick_table.h"
 
-#include <rcsc/formation/formation.h>
 #include <rcsc/player/intercept_table.h>
 #include <rcsc/player/say_message_builder.h>
 #include <rcsc/player/audio_sensor.h>
@@ -94,36 +92,33 @@ SamplePlayer::SamplePlayer()
     : PlayerAgent(),
       M_communication()
 {
-    M_field_evaluator = createFieldEvaluator();
-    M_action_generator = createActionGenerator();
+    std::shared_ptr<AudioMemory> audio_memory(new AudioMemory);
 
-    std::shared_ptr< AudioMemory > audio_memory( new AudioMemory );
-
-    M_worldmodel.setAudioMemory( audio_memory );
+    M_worldmodel.setAudioMemory(audio_memory);
 
     //
     // set communication message parser
     //
-    addSayMessageParser( new BallMessageParser( audio_memory ) );
-    addSayMessageParser( new PassMessageParser( audio_memory ) );
-    addSayMessageParser( new InterceptMessageParser( audio_memory ) );
-    addSayMessageParser( new GoalieMessageParser( audio_memory ) );
-    addSayMessageParser( new GoalieAndPlayerMessageParser( audio_memory ) );
-    addSayMessageParser( new OffsideLineMessageParser( audio_memory ) );
-    addSayMessageParser( new DefenseLineMessageParser( audio_memory ) );
-    addSayMessageParser( new WaitRequestMessageParser( audio_memory ) );
-    addSayMessageParser( new PassRequestMessageParser( audio_memory ) );
-    addSayMessageParser( new DribbleMessageParser( audio_memory ) );
-    addSayMessageParser( new BallGoalieMessageParser( audio_memory ) );
-    addSayMessageParser( new OnePlayerMessageParser( audio_memory ) );
-    addSayMessageParser( new TwoPlayerMessageParser( audio_memory ) );
-    addSayMessageParser( new ThreePlayerMessageParser( audio_memory ) );
-    addSayMessageParser( new SelfMessageParser( audio_memory ) );
-    addSayMessageParser( new TeammateMessageParser( audio_memory ) );
-    addSayMessageParser( new OpponentMessageParser( audio_memory ) );
-    addSayMessageParser( new BallPlayerMessageParser( audio_memory ) );
-    addSayMessageParser( new StaminaMessageParser( audio_memory ) );
-    addSayMessageParser( new RecoveryMessageParser( audio_memory ) );
+    addSayMessageParser(new BallMessageParser(audio_memory));
+    addSayMessageParser(new PassMessageParser(audio_memory));
+    addSayMessageParser(new InterceptMessageParser(audio_memory));
+    addSayMessageParser(new GoalieMessageParser(audio_memory));
+    addSayMessageParser(new GoalieAndPlayerMessageParser(audio_memory));
+    addSayMessageParser(new OffsideLineMessageParser(audio_memory));
+    addSayMessageParser(new DefenseLineMessageParser(audio_memory));
+    addSayMessageParser(new WaitRequestMessageParser(audio_memory));
+    addSayMessageParser(new PassRequestMessageParser(audio_memory));
+    addSayMessageParser(new DribbleMessageParser(audio_memory));
+    addSayMessageParser(new BallGoalieMessageParser(audio_memory));
+    addSayMessageParser(new OnePlayerMessageParser(audio_memory));
+    addSayMessageParser(new TwoPlayerMessageParser(audio_memory));
+    addSayMessageParser(new ThreePlayerMessageParser(audio_memory));
+    addSayMessageParser(new SelfMessageParser(audio_memory));
+    addSayMessageParser(new TeammateMessageParser(audio_memory));
+    addSayMessageParser(new OpponentMessageParser(audio_memory));
+    addSayMessageParser(new BallPlayerMessageParser(audio_memory));
+    addSayMessageParser(new StaminaMessageParser(audio_memory));
+    addSayMessageParser(new RecoveryMessageParser(audio_memory));
 
     // addSayMessageParser( new FreeMessageParser< 9 >( audio_memory ) );
     // addSayMessageParser( new FreeMessageParser< 8 >( audio_memory ) );
@@ -138,12 +133,12 @@ SamplePlayer::SamplePlayer()
     //
     // set freeform message parser
     //
-    addFreeformMessageParser( new OpponentPlayerTypeMessageParser( M_worldmodel ) );
+    addFreeformMessageParser(new OpponentPlayerTypeMessageParser(M_worldmodel));
 
     //
     // set communication planner
     //
-    M_communication = Communication::Ptr( new SampleCommunication() );
+    M_communication = Communication::Ptr(new SampleCommunication());
 }
 
 /*-------------------------------------------------------------------*/
@@ -152,55 +147,44 @@ SamplePlayer::SamplePlayer()
  */
 SamplePlayer::~SamplePlayer()
 {
-
 }
 
 /*-------------------------------------------------------------------*/
 /*!
 
  */
-bool
-SamplePlayer::initImpl( CmdLineParser & cmd_parser )
+bool SamplePlayer::initImpl(CmdLineParser &cmd_parser)
 {
-    bool result = PlayerAgent::initImpl( cmd_parser );
+    bool result = PlayerAgent::initImpl(cmd_parser);
 
-    // read additional options
-    result &= Strategy::instance().init( cmd_parser );
-
-    rcsc::ParamMap my_params( "Additional options" );
+    rcsc::ParamMap my_params("Additional options");
 #if 0
     std::string param_file_path = "params";
     param_map.add()
         ( "param-file", "", &param_file_path, "specified parameter file" );
 #endif
 
-    cmd_parser.parse( my_params );
+    cmd_parser.parse(my_params);
 
-    if ( cmd_parser.count( "help" ) > 0 )
+    if (cmd_parser.count("help") > 0)
     {
-        my_params.printHelp( std::cout );
+        my_params.printHelp(std::cout);
         return false;
     }
 
-    if ( cmd_parser.failed() )
+    if (cmd_parser.failed())
     {
         std::cerr << "player: ***WARNING*** detected unsuppprted options: ";
-        cmd_parser.print( std::cerr );
+        cmd_parser.print(std::cerr);
         std::cerr << std::endl;
     }
 
-    if ( ! result )
+    if (!result)
     {
         return false;
     }
 
-    if ( ! Strategy::instance().read( config().configDir() ) )
-    {
-        std::cerr << "***ERROR*** Failed to read team strategy." << std::endl;
-        return false;
-    }
-
-    if ( KickTable::instance().read( config().configDir() + "/kick-table" ) )
+    if (KickTable::instance().read(config().configDir() + "/kick-table"))
     {
         std::cerr << "Loaded the kick table: ["
                   << config().configDir() << "/kick-table]"
@@ -215,10 +199,9 @@ SamplePlayer::initImpl( CmdLineParser & cmd_parser )
   main decision
   virtual method in super class
 */
-void
-SamplePlayer::actionImpl()
+void SamplePlayer::actionImpl()
 {
-    if ( this->audioSensor().trainerMessageTime() == world().time() )
+    if (this->audioSensor().trainerMessageTime() == world().time())
     {
         std::cerr << world().ourTeamName() << ' ' << world().self().unum()
                   << ' ' << world().time()
@@ -227,112 +210,70 @@ SamplePlayer::actionImpl()
                   << std::endl;
     }
 
-
-    //
-    // update strategy and analyzer
-    //
-    Strategy::instance().update( world() );
-    FieldAnalyzer::instance().update( world() );
-
-    //
-    // prepare action chain
-    //
-    M_field_evaluator = createFieldEvaluator();
-    M_action_generator = createActionGenerator();
-
-    ActionChainHolder::instance().setFieldEvaluator( M_field_evaluator );
-    ActionChainHolder::instance().setActionGenerator( M_action_generator );
-
     //
     // special situations (tackle, objects accuracy, intention...)
     //
-    if ( doPreprocess() )
+    if (doPreprocess())
     {
-        dlog.addText( Logger::TEAM,
-                      __FILE__": preprocess done" );
+        dlog.addText(Logger::TEAM,
+                     __FILE__ ": preprocess done");
         return;
     }
 
     //
-    // update action chain
+    // decision Make
     //
-    ActionChainHolder::instance().update( world() );
 
-
-    //
-    // create current role
-    //
-    SoccerRole::Ptr role_ptr;
+    if (this->world().gameMode().type() == GameMode::PlayOn)
     {
-        role_ptr = Strategy::i().createRole( world().self().unum(), world() );
-
-        if ( ! role_ptr )
+        if (this->world().self().goalie())
         {
-            std::cerr << config().teamName() << ": "
-                      << world().self().unum()
-                      << " Error. Role is not registerd.\nExit ..."
-                      << std::endl;
-            M_client->setServerAlive( false );
+            dlog.addText(Logger::TEAM,
+                         __FILE__ ": goalie");
+            RoleGoalie().execute(this);
+            return;
+        }
+        else
+        {
+            dlog.addText(Logger::TEAM,
+                         __FILE__ ": player");
+            RolePlayer().execute(this);
             return;
         }
     }
 
-
-    //
-    // override execute if role accept
-    //
-    if ( role_ptr->acceptExecution( world() ) )
-    {
-        role_ptr->execute( this );
-        return;
-    }
-
-
-    //
-    // play_on mode
-    //
-    if ( world().gameMode().type() == GameMode::PlayOn )
-    {
-        role_ptr->execute( this );
-        return;
-    }
-
-
     //
     // penalty kick mode
     //
-    if ( world().gameMode().isPenaltyKickMode() )
+    if (world().gameMode().isPenaltyKickMode())
     {
-        dlog.addText( Logger::TEAM,
-                      __FILE__": penalty kick" );
-        Bhv_PenaltyKick().execute( this );
+        dlog.addText(Logger::TEAM,
+                     __FILE__ ": penalty kick");
+        Bhv_PenaltyKick().execute(this);
         return;
     }
 
     //
     // other set play mode
     //
-    Bhv_SetPlay().execute( this );
+    Bhv_SetPlay().execute(this);
 }
 
 /*-------------------------------------------------------------------*/
 /*!
 
  */
-void
-SamplePlayer::handleActionStart()
+void SamplePlayer::handleActionStart()
 {
-
 }
 
 /*-------------------------------------------------------------------*/
 /*!
 
  */
-void
-SamplePlayer::handleActionEnd()
+void SamplePlayer::handleActionEnd()
 {
-    if ( world().self().posValid() )
+    if (world().self().posValid())
     {
 #if 0
         const ServerParam & SP = ServerParam::i();
@@ -386,61 +327,60 @@ SamplePlayer::handleActionEnd()
                                          +SP.pitchHalfWidth() + 3.0 ) );
 #else
         // top,lower
-        debugClient().addLine( Vector2D( world().ourDefenseLineX(),
-                                         world().self().pos().y - 2.0 ),
-                               Vector2D( world().ourDefenseLineX(),
-                                         world().self().pos().y + 2.0 ) );
+        debugClient().addLine(Vector2D(world().ourDefenseLineX(),
+                                       world().self().pos().y - 2.0),
+                              Vector2D(world().ourDefenseLineX(),
+                                       world().self().pos().y + 2.0));
 
         //
-        debugClient().addLine( Vector2D( world().offsideLineX(),
-                                         world().self().pos().y - 15.0 ),
-                               Vector2D( world().offsideLineX(),
-                                         world().self().pos().y + 15.0 ) );
+        debugClient().addLine(Vector2D(world().offsideLineX(),
+                                       world().self().pos().y - 15.0),
+                              Vector2D(world().offsideLineX(),
+                                       world().self().pos().y + 15.0));
 #endif
     }
 
     //
     // ball position & velocity
     //
-    dlog.addText( Logger::WORLD,
-                  "WM: BALL pos=(%lf, %lf), vel=(%lf, %lf, r=%lf, ang=%lf)",
-                  world().ball().pos().x,
-                  world().ball().pos().y,
-                  world().ball().vel().x,
-                  world().ball().vel().y,
-                  world().ball().vel().r(),
-                  world().ball().vel().th().degree() );
+    dlog.addText(Logger::WORLD,
+                 "WM: BALL pos=(%lf, %lf), vel=(%lf, %lf, r=%lf, ang=%lf)",
+                 world().ball().pos().x,
+                 world().ball().pos().y,
+                 world().ball().vel().x,
+                 world().ball().vel().y,
+                 world().ball().vel().r(),
+                 world().ball().vel().th().degree());
 
+    dlog.addText(Logger::WORLD,
+                 "WM: SELF move=(%lf, %lf, r=%lf, th=%lf)",
+                 world().self().lastMove().x,
+                 world().self().lastMove().y,
+                 world().self().lastMove().r(),
+                 world().self().lastMove().th().degree());
 
-    dlog.addText( Logger::WORLD,
-                  "WM: SELF move=(%lf, %lf, r=%lf, th=%lf)",
-                  world().self().lastMove().x,
-                  world().self().lastMove().y,
-                  world().self().lastMove().r(),
-                  world().self().lastMove().th().degree() );
-
-    if ( world().prevBall().rpos().isValid() )
+    if (world().prevBall().rpos().isValid())
     {
         Vector2D diff = world().ball().rpos() - world().prevBall().rpos();
-        dlog.addText( Logger::WORLD,
-                      "WM: BALL rpos=(%lf %lf) prev_rpos=(%lf %lf) diff=(%lf %lf)",
-                  world().ball().rpos().x,
-                      world().ball().rpos().y,
-                      world().prevBall().rpos().x,
-                      world().prevBall().rpos().y,
-                      diff.x,
-                      diff.y );
+        dlog.addText(Logger::WORLD,
+                     "WM: BALL rpos=(%lf %lf) prev_rpos=(%lf %lf) diff=(%lf %lf)",
+                     world().ball().rpos().x,
+                     world().ball().rpos().y,
+                     world().prevBall().rpos().x,
+                     world().prevBall().rpos().y,
+                     diff.x,
+                     diff.y);
 
         Vector2D ball_move = diff + world().self().lastMove();
         Vector2D diff_vel = ball_move * ServerParam::i().ballDecay();
-        dlog.addText( Logger::WORLD,
-                      "---> ball_move=(%lf %lf) vel=(%lf, %lf, r=%lf, th=%lf)",
-                      ball_move.x,
-                      ball_move.y,
-                      diff_vel.x,
-                      diff_vel.y,
-                      diff_vel.r(),
-                      diff_vel.th().degree() );
+        dlog.addText(Logger::WORLD,
+                     "---> ball_move=(%lf %lf) vel=(%lf, %lf, r=%lf, th=%lf)",
+                     ball_move.x,
+                     ball_move.y,
+                     diff_vel.x,
+                     diff_vel.y,
+                     diff_vel.r(),
+                     diff_vel.th().degree());
     }
 }
 
@@ -448,13 +388,12 @@ SamplePlayer::handleActionEnd()
 /*!
 
  */
-void
-SamplePlayer::handleInitMessage()
+void SamplePlayer::handleInitMessage()
 {
     {
         // Initializing the order of penalty kickers
-        std::vector< int > unum_order_pk_kickers = { 10, 9, 2, 11, 3, 4, 1, 5, 6, 7, 8 };
-        M_worldmodel.setPenaltyKickTakerOrder( unum_order_pk_kickers );
+        std::vector<int> unum_order_pk_kickers = {10, 9, 2, 11, 3, 4, 1, 5, 6, 7, 8};
+        M_worldmodel.setPenaltyKickTakerOrder(unum_order_pk_kickers);
     }
 }
 
@@ -462,13 +401,12 @@ SamplePlayer::handleInitMessage()
 /*!
 
  */
-void
-SamplePlayer::handleServerParam()
+void SamplePlayer::handleServerParam()
 {
-    if ( ServerParam::i().keepawayMode() )
+    if (ServerParam::i().keepawayMode())
     {
         std::cerr << "set Keepaway mode communication." << std::endl;
-        M_communication = Communication::Ptr( new KeepawayCommunication() );
+        M_communication = Communication::Ptr(new KeepawayCommunication());
     }
 }
 
@@ -476,10 +414,9 @@ SamplePlayer::handleServerParam()
 /*!
 
  */
-void
-SamplePlayer::handlePlayerParam()
+void SamplePlayer::handlePlayerParam()
 {
-    if ( KickTable::instance().createTables() )
+    if (KickTable::instance().createTables())
     {
         std::cerr << world().teamName() << ' '
                   << world().self().unum() << ": "
@@ -492,7 +429,7 @@ SamplePlayer::handlePlayerParam()
                   << world().self().unum() << ": "
                   << " KickTable failed..."
                   << std::endl;
-        M_client->setServerAlive( false );
+        M_client->setServerAlive(false);
     }
 }
 
@@ -500,10 +437,8 @@ SamplePlayer::handlePlayerParam()
 /*!
 
  */
-void
-SamplePlayer::handlePlayerType()
+void SamplePlayer::handlePlayerType()
 {
-
 }
 
 /*-------------------------------------------------------------------*/
@@ -511,20 +446,18 @@ SamplePlayer::handlePlayerType()
   communication decision.
   virtual method in super class
 */
-void
-SamplePlayer::communicationImpl()
+void SamplePlayer::communicationImpl()
 {
-    if ( M_communication )
+    if (M_communication)
     {
-        M_communication->execute( this );
+        M_communication->execute(this);
     }
 }
 
 /*-------------------------------------------------------------------*/
 /*!
-*/
-bool
-SamplePlayer::doPreprocess()
+ */
+bool SamplePlayer::doPreprocess()
 {
     // check tackle expires
     // check self position accuracy
@@ -532,64 +465,61 @@ SamplePlayer::doPreprocess()
     // check queued intention
     // check simultaneous kick
 
-    const WorldModel & wm = this->world();
+    const WorldModel &wm = this->world();
 
-    dlog.addText( Logger::TEAM,
-                  __FILE__": (doPreProcess)" );
+    dlog.addText(Logger::TEAM,
+                 __FILE__ ": (doPreProcess)");
 
     //
     // freezed by tackle effect
     //
-    if ( wm.self().isFrozen() )
+    if (wm.self().isFrozen())
     {
-        dlog.addText( Logger::TEAM,
-                      __FILE__": tackle wait. expires= %d",
-                      wm.self().tackleExpires() );
+        dlog.addText(Logger::TEAM,
+                     __FILE__ ": tackle wait. expires= %d",
+                     wm.self().tackleExpires());
         // face neck to ball
-        this->setViewAction( new View_Tactical() );
-        this->setNeckAction( new Neck_TurnToBallOrScan( 0 ) );
+        this->setViewAction(new View_Tactical());
+        this->setNeckAction(new Neck_TurnToBallOrScan(0));
         return true;
     }
 
     //
     // BeforeKickOff or AfterGoal. jump to the initial position
     //
-    if ( wm.gameMode().type() == GameMode::BeforeKickOff
-         || wm.gameMode().type() == GameMode::AfterGoal_ )
+    if (wm.gameMode().type() == GameMode::BeforeKickOff || wm.gameMode().type() == GameMode::AfterGoal_)
     {
-        dlog.addText( Logger::TEAM,
-                      __FILE__": before_kick_off" );
-        Vector2D move_point =  Strategy::i().getPosition( wm.self().unum() );
-        Bhv_CustomBeforeKickOff( move_point ).execute( this );
-        this->setViewAction( new View_Tactical() );
+        dlog.addText(Logger::TEAM,
+                     __FILE__ ": before_kick_off");
+        Vector2D move_point = Strategy::i().getHomePosition(wm, wm.self().unum());
+        Bhv_CustomBeforeKickOff(move_point).execute(this);
+        this->setViewAction(new View_Tactical());
         return true;
     }
 
     //
     // self localization error
     //
-    if ( ! wm.self().posValid() )
+    if (!wm.self().posValid())
     {
-        dlog.addText( Logger::TEAM,
-                      __FILE__": invalid my pos" );
-        Bhv_Emergency().execute( this ); // includes change view
+        dlog.addText(Logger::TEAM,
+                     __FILE__ ": invalid my pos");
+        Bhv_Emergency().execute(this); // includes change view
         return true;
     }
 
     //
     // ball localization error
     //
-    const int count_thr = ( wm.self().goalie()
-                            ? 10
-                            : 5 );
-    if ( wm.ball().posCount() > count_thr
-         || ( wm.gameMode().type() != GameMode::PlayOn
-              && wm.ball().seenPosCount() > count_thr + 10 ) )
+    const int count_thr = (wm.self().goalie()
+                               ? 10
+                               : 5);
+    if (wm.ball().posCount() > count_thr || (wm.gameMode().type() != GameMode::PlayOn && wm.ball().seenPosCount() > count_thr + 10))
     {
-        dlog.addText( Logger::TEAM,
-                      __FILE__": search ball" );
-        this->setViewAction( new View_Tactical() );
-        Bhv_NeckBodyToBall().execute( this );
+        dlog.addText(Logger::TEAM,
+                     __FILE__ ": search ball");
+        this->setViewAction(new View_Tactical());
+        Bhv_NeckBodyToBall().execute(this);
         return true;
     }
 
@@ -597,12 +527,12 @@ SamplePlayer::doPreprocess()
     // set default change view
     //
 
-    this->setViewAction( new View_Tactical() );
+    this->setViewAction(new View_Tactical());
 
     //
     // check shoot chance
     //
-    if ( doShoot() )
+    if (doShoot())
     {
         return true;
     }
@@ -610,17 +540,17 @@ SamplePlayer::doPreprocess()
     //
     // check queued action
     //
-    if ( this->doIntention() )
+    if (this->doIntention())
     {
-        dlog.addText( Logger::TEAM,
-                      __FILE__": do queued intention" );
+        dlog.addText(Logger::TEAM,
+                     __FILE__ ": do queued intention");
         return true;
     }
 
     //
     // check simultaneous kick
     //
-    if ( doForceKick() )
+    if (doForceKick())
     {
         return true;
     }
@@ -628,7 +558,7 @@ SamplePlayer::doPreprocess()
     //
     // check pass message
     //
-    if ( doHeardPassReceive() )
+    if (doHeardPassReceive())
     {
         return true;
     }
@@ -640,21 +570,17 @@ SamplePlayer::doPreprocess()
 /*!
 
 */
-bool
-SamplePlayer::doShoot()
+bool SamplePlayer::doShoot()
 {
-    const WorldModel & wm = this->world();
+    const WorldModel &wm = this->world();
 
-    if ( wm.gameMode().type() != GameMode::IndFreeKick_
-         && wm.time().stopped() == 0
-         && wm.self().isKickable()
-         && Bhv_StrictCheckShoot().execute( this ) )
+    if (wm.gameMode().type() != GameMode::IndFreeKick_ && wm.time().stopped() == 0 && wm.self().isKickable() && Bhv_BasicOffensiveKick().shoot(this))
     {
-        dlog.addText( Logger::TEAM,
-                      __FILE__": shooted" );
+        dlog.addText(Logger::TEAM,
+                     __FILE__ ": shooted");
 
         // reset intention
-        this->setIntention( static_cast< SoccerIntention * >( 0 ) );
+        this->setIntention(static_cast<SoccerIntention *>(0));
         return true;
     }
 
@@ -665,32 +591,27 @@ SamplePlayer::doShoot()
 /*!
 
 */
-bool
-SamplePlayer::doForceKick()
+bool SamplePlayer::doForceKick()
 {
-    const WorldModel & wm = this->world();
+    const WorldModel &wm = this->world();
 
-    if ( wm.gameMode().type() == GameMode::PlayOn
-         && ! wm.self().goalie()
-         && wm.self().isKickable()
-         && wm.kickableOpponent() )
+    if (wm.gameMode().type() == GameMode::PlayOn && !wm.self().goalie() && wm.self().isKickable() && wm.kickableOpponent())
     {
-        dlog.addText( Logger::TEAM,
-                      __FILE__": simultaneous kick" );
-        this->debugClient().addMessage( "SimultaneousKick" );
-        Vector2D goal_pos( ServerParam::i().pitchHalfLength(), 0.0 );
+        dlog.addText(Logger::TEAM,
+                     __FILE__ ": simultaneous kick");
+        this->debugClient().addMessage("SimultaneousKick");
+        Vector2D goal_pos(ServerParam::i().pitchHalfLength(), 0.0);
 
-        if ( wm.self().pos().x > 36.0
-             && wm.self().pos().absY() > 10.0 )
+        if (wm.self().pos().x > 36.0 && wm.self().pos().absY() > 10.0)
         {
             goal_pos.x = 45.0;
-            dlog.addText( Logger::TEAM,
-                          __FILE__": simultaneous kick cross type" );
+            dlog.addText(Logger::TEAM,
+                         __FILE__ ": simultaneous kick cross type");
         }
-        Body_KickOneStep( goal_pos,
-                          ServerParam::i().ballSpeedMax()
-                          ).execute( this );
-        this->setNeckAction( new Neck_ScanField() );
+        Body_KickOneStep(goal_pos,
+                         ServerParam::i().ballSpeedMax())
+            .execute(this);
+        this->setNeckAction(new Neck_ScanField());
         return true;
     }
 
@@ -701,147 +622,55 @@ SamplePlayer::doForceKick()
 /*!
 
 */
-bool
-SamplePlayer::doHeardPassReceive()
+bool SamplePlayer::doHeardPassReceive()
 {
-    const WorldModel & wm = this->world();
+    const WorldModel &wm = this->world();
 
-    if ( wm.audioMemory().passTime() != wm.time()
-         || wm.audioMemory().pass().empty()
-         || wm.audioMemory().pass().front().receiver_ != wm.self().unum() )
+    if (wm.audioMemory().passTime() != wm.time() || wm.audioMemory().pass().empty() || wm.audioMemory().pass().front().receiver_ != wm.self().unum())
     {
 
         return false;
     }
 
     int self_min = wm.interceptTable().selfStep();
-    Vector2D intercept_pos = wm.ball().inertiaPoint( self_min );
+    Vector2D intercept_pos = wm.ball().inertiaPoint(self_min);
     Vector2D heard_pos = wm.audioMemory().pass().front().receive_pos_;
 
-    dlog.addText( Logger::TEAM,
-                  __FILE__":  (doHeardPassReceive) heard_pos(%.2f %.2f) intercept_pos(%.2f %.2f)",
-                  heard_pos.x, heard_pos.y,
-                  intercept_pos.x, intercept_pos.y );
+    dlog.addText(Logger::TEAM,
+                 __FILE__ ":  (doHeardPassReceive) heard_pos(%.2f %.2f) intercept_pos(%.2f %.2f)",
+                 heard_pos.x, heard_pos.y,
+                 intercept_pos.x, intercept_pos.y);
 
-    if ( ! wm.kickableTeammate()
-         && wm.ball().posCount() <= 1
-         && wm.ball().velCount() <= 1
-         && self_min < 20
-         //&& intercept_pos.dist( heard_pos ) < 3.0 ) //5.0 )
-         )
+    if (!wm.kickableTeammate() && wm.ball().posCount() <= 1 && wm.ball().velCount() <= 1 && self_min < 20
+        //&& intercept_pos.dist( heard_pos ) < 3.0 ) //5.0 )
+    )
     {
-        dlog.addText( Logger::TEAM,
-                      __FILE__": (doHeardPassReceive) intercept cycle=%d. intercept",
-                      self_min );
-        this->debugClient().addMessage( "Comm:Receive:Intercept" );
-        Body_Intercept().execute( this );
-        this->setNeckAction( new Neck_TurnToBall() );
+        dlog.addText(Logger::TEAM,
+                     __FILE__ ": (doHeardPassReceive) intercept cycle=%d. intercept",
+                     self_min);
+        this->debugClient().addMessage("Comm:Receive:Intercept");
+        Body_Intercept().execute(this);
+        this->setNeckAction(new Neck_TurnToBall());
     }
     else
     {
-        dlog.addText( Logger::TEAM,
-                      __FILE__": (doHeardPassReceive) intercept cycle=%d. go to receive point",
-                      self_min );
-        this->debugClient().setTarget( heard_pos );
-        this->debugClient().addMessage( "Comm:Receive:GoTo" );
-        Body_GoToPoint( heard_pos,
-                    0.5,
-                        ServerParam::i().maxDashPower()
-                        ).execute( this );
-        this->setNeckAction( new Neck_TurnToBall() );
+        dlog.addText(Logger::TEAM,
+                     __FILE__ ": (doHeardPassReceive) intercept cycle=%d. go to receive point",
+                     self_min);
+        this->debugClient().setTarget(heard_pos);
+        this->debugClient().addMessage("Comm:Receive:GoTo");
+        Body_GoToPoint(heard_pos,
+                       0.5,
+                       ServerParam::i().maxDashPower())
+            .execute(this);
+        this->setNeckAction(new Neck_TurnToBall());
     }
 
-    this->setIntention( new IntentionReceive( heard_pos,
-                                              ServerParam::i().maxDashPower(),
-                                              0.9,
-                                              5,
-                                              wm.time() ) );
+    this->setIntention(new IntentionReceive(heard_pos,
+                                            ServerParam::i().maxDashPower(),
+                                            0.9,
+                                            5,
+                                            wm.time()));
 
     return true;
-}
-
-/*-------------------------------------------------------------------*/
-/*!
-
-*/
-FieldEvaluator::ConstPtr
-SamplePlayer::getFieldEvaluator() const
-{
-    return M_field_evaluator;
-}
-
-/*-------------------------------------------------------------------*/
-/*!
-
-*/
-FieldEvaluator::ConstPtr
-SamplePlayer::createFieldEvaluator() const
-{
-    return FieldEvaluator::ConstPtr( new SampleFieldEvaluator );
-}
-
-
-/*-------------------------------------------------------------------*/
-/*!
-*/
-#include "actgen_cross.h"
-#include "actgen_direct_pass.h"
-#include "actgen_self_pass.h"
-#include "actgen_strict_check_pass.h"
-#include "actgen_short_dribble.h"
-#include "actgen_simple_dribble.h"
-#include "actgen_shoot.h"
-#include "actgen_action_chain_length_filter.h"
-
-ActionGenerator::ConstPtr
-SamplePlayer::createActionGenerator() const
-{
-    CompositeActionGenerator * g = new CompositeActionGenerator();
-
-    //
-    // shoot
-    //
-    g->addGenerator( new ActGen_RangeActionChainLengthFilter
-                     ( new ActGen_Shoot(),
-                       2, ActGen_RangeActionChainLengthFilter::MAX ) );
-
-    //
-    // strict check pass
-    //
-    g->addGenerator( new ActGen_MaxActionChainLengthFilter
-                     ( new ActGen_StrictCheckPass(), 1 ) );
-
-    //
-    // cross
-    //
-    g->addGenerator( new ActGen_MaxActionChainLengthFilter
-                     ( new ActGen_Cross(), 1 ) );
-
-    //
-    // direct pass
-    //
-    // g->addGenerator( new ActGen_RangeActionChainLengthFilter
-    //                  ( new ActGen_DirectPass(),
-    //                    2, ActGen_RangeActionChainLengthFilter::MAX ) );
-
-    //
-    // short dribble
-    //
-    g->addGenerator( new ActGen_MaxActionChainLengthFilter
-                     ( new ActGen_ShortDribble(), 1 ) );
-
-    //
-    // self pass (long dribble)
-    //
-    g->addGenerator( new ActGen_MaxActionChainLengthFilter
-                     ( new ActGen_SelfPass(), 1 ) );
-
-    //
-    // simple dribble
-    //
-    // g->addGenerator( new ActGen_RangeActionChainLengthFilter
-    //                  ( new ActGen_SimpleDribble(),
-    //                    2, ActGen_RangeActionChainLengthFilter::MAX ) );
-
-    return ActionGenerator::ConstPtr( g );
 }

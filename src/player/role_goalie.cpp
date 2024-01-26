@@ -31,8 +31,9 @@
 #include "role_goalie.h"
 
 #include "bhv_goalie_basic_move.h"
-#include "bhv_goalie_chase_ball.h"
-#include "bhv_goalie_free_kick.h"
+#include "extensions/bhv_goalie_chase_ball.h"
+#include "extensions/bhv_goalie_free_kick.h"
+#include "bhv_basic_offensive_kick.h"
 
 #include "basic_actions/basic_actions.h"
 #include "basic_actions/neck_scan_field.h"
@@ -47,17 +48,6 @@
 #include <rcsc/geom/rect_2d.h>
 
 using namespace rcsc;
-
-const std::string RoleGoalie::NAME( "Goalie" );
-
-/*-------------------------------------------------------------------*/
-/*!
-
- */
-namespace {
-rcss::RegHolder role = SoccerRole::creators().autoReg( &RoleGoalie::create,
-                                                       RoleGoalie::name() );
-}
 
 /*-------------------------------------------------------------------*/
 /*!
@@ -106,6 +96,12 @@ RoleGoalie::execute( PlayerAgent * agent )
 void
 RoleGoalie::doKick( PlayerAgent * agent )
 {
+    if (Bhv_BasicOffensiveKick().execute(agent))
+    {
+        dlog.addText(Logger::TEAM,
+                        __FILE__ ": bhv_basic_offensive_kick");
+        return;
+    }
     Body_ClearBall().execute( agent );
     agent->setNeckAction( new Neck_ScanField() );
 }

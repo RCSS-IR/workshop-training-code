@@ -47,7 +47,7 @@
 #include <rcsc/common/logger.h>
 #include <rcsc/common/server_param.h>
 
-#include "neck_offensive_intercept_neck.h"
+#include "extensions/neck_offensive_intercept_neck.h"
 
 using namespace rcsc;
 
@@ -74,6 +74,7 @@ Bhv_BasicMove::execute( PlayerAgent * agent )
     const int self_min = wm.interceptTable().selfStep();
     const int mate_min = wm.interceptTable().teammateStep();
     const int opp_min = wm.interceptTable().opponentStep();
+    const int our_min = std::min( self_min, mate_min );
 
     if ( ! wm.kickableTeammate()
          && ( self_min <= 3
@@ -90,7 +91,15 @@ Bhv_BasicMove::execute( PlayerAgent * agent )
         return true;
     }
 
-    const Vector2D target_point = Strategy::i().getPosition( wm.self().unum() );
+    if (our_min < opp_min){
+        // Do offensive move like unmark or possitioning
+    }
+    else
+    {
+        // Do defensive move like mark or block
+    }
+    // Go to home position
+    const Vector2D home_pos = Strategy::i().getHomePosition( wm, wm.self().unum() );
     const double dash_power = Strategy::get_normal_dash_power( wm );
 
     double dist_thr = wm.ball().distFromSelf() * 0.1;
@@ -98,14 +107,14 @@ Bhv_BasicMove::execute( PlayerAgent * agent )
 
     dlog.addText( Logger::TEAM,
                   __FILE__": Bhv_BasicMove target=(%.1f %.1f) dist_thr=%.2f",
-                  target_point.x, target_point.y,
+                  home_pos.x, home_pos.y,
                   dist_thr );
 
     agent->debugClient().addMessage( "BasicMove%.0f", dash_power );
-    agent->debugClient().setTarget( target_point );
-    agent->debugClient().addCircle( target_point, dist_thr );
+    agent->debugClient().setTarget( home_pos );
+    agent->debugClient().addCircle( home_pos, dist_thr );
 
-    if ( ! Body_GoToPoint( target_point, dist_thr, dash_power
+    if ( ! Body_GoToPoint( home_pos, dist_thr, dash_power
                            ).execute( agent ) )
     {
         Body_TurnToBall().execute( agent );

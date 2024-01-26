@@ -1,10 +1,5 @@
 // -*-c++-*-
 
-/*!
-  \file strategy.h
-  \brief team strategy manager Header File
-*/
-
 /*
  *Copyright:
 
@@ -29,47 +24,22 @@
 
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STRATEGY_H
-#define STRATEGY_H
+#ifndef TOKYOTEC_BHV_BASIC_OFFENSIVE_KICK_H
+#define TOKYOTEC_BHV_BASIC_OFFENSIVE_KICK_H
 
-#include <rcsc/geom/vector_2d.h>
+#include <rcsc/player/soccer_action.h>
 
-#include <boost/shared_ptr.hpp>
-#include <map>
-#include <vector>
-#include <string>
-
-// # define USE_GENERIC_FACTORY 1
-
-namespace rcsc {
-class CmdLineParser;
-class WorldModel;
-}
-
-class Strategy {
+class Bhv_BasicOffensiveKick
+    : public rcsc::SoccerBehavior
+{
+private:
 public:
-    // private for singleton
-    Strategy();
-
-    // not used
-    Strategy( const Strategy & );
-    const Strategy & operator=( const Strategy & );
-
-    static
-    Strategy & instance();
-
-    static
-    const
-    Strategy & i()
-      {
-          return instance();
-      }
-
-    static
-    rcsc::Vector2D getHomePosition(const rcsc::WorldModel & wm, int self_unum);
-
-    static
-    double get_normal_dash_power( const rcsc::WorldModel & wm );
+    bool execute(rcsc::PlayerAgent *agent);
+    bool shoot(rcsc::PlayerAgent *agent);
+    // bool pass_to_forward(rcsc::PlayerAgent *agent, int kick_count);
+    bool pass(rcsc::PlayerAgent *agent, int kick_count = 3);
+    bool dribble(rcsc::PlayerAgent *agent);
+    bool clearball(rcsc::PlayerAgent *agent);
 };
 
 #endif

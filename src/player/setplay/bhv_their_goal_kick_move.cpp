@@ -155,7 +155,7 @@ Bhv_TheirGoalKickMove::doNormal( PlayerAgent * agent )
     const WorldModel & wm = agent->world();
     double dash_power = Bhv_SetPlay::get_set_play_dash_power( agent );
 
-    Vector2D target_point = Strategy::i().getPosition( wm.self().unum() );
+    Vector2D target_point = Strategy::i().getHomePosition( wm, wm.self().unum() );
 
     // attract to ball
     if ( target_point.x > 25.0

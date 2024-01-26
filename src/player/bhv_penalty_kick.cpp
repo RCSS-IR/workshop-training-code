@@ -32,13 +32,13 @@
 
 #include "strategy.h"
 
-#include "bhv_goalie_chase_ball.h"
+#include "extensions/bhv_goalie_chase_ball.h"
 #include "bhv_goalie_basic_move.h"
+#include "bhv_basic_offensive_kick.h"
 
 #include "setplay/bhv_go_to_placed_ball.h"
 
 #include "basic_actions/body_clear_ball.h"
-#include "basic_actions/body_dribble2008.h"
 #include "basic_actions/body_intercept.h"
 #include "basic_actions/body_smart_kick.h"
 
@@ -651,7 +651,6 @@ Bhv_PenaltyKick::doDribble( PlayerAgent * agent )
 
     const double base_target_abs_y = ServerParam::i().goalHalfWidth() + 4.0;
     Vector2D drib_target = goal_c;
-    double drib_power = ServerParam::i().maxDashPower();
     int drib_dashes = 6;
 
     /////////////////////////////////////////////////
@@ -804,23 +803,9 @@ Bhv_PenaltyKick::doDribble( PlayerAgent * agent )
     }
     else
     {
-#if 0
-        bool dodge_mode = true;
-        if ( opp_goalie == NULL
-             || ( ( opp_goalie->pos() - agent->world().self().pos() ).th()
-                  - ( drib_target - agent->world().self().pos() ).th() ).abs() > 45.0 )
-        {
-            dodge_mode = false;
-        }
-#else
-        bool dodge_mode = false;
-#endif
-        Body_Dribble2008( drib_target,
-                          2.0,
-                          drib_power,
-                          drib_dashes,
-                          dodge_mode
-                          ).execute( agent );
+
+    Bhv_BasicOffensiveKick().dribble(agent);
+    
     }
 
     if ( opp_goalie )
