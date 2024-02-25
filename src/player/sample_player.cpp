@@ -249,6 +249,7 @@ void SamplePlayer::actionImpl()
             dlog.addText(Logger::TEAM,
                          __FILE__ ": goalie");
             RoleGoalie().execute(this);
+            return;
         }
         else
         {
