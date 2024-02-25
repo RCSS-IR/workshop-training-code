@@ -28,18 +28,45 @@
 #define TOKYOTEC_BHV_BASIC_OFFENSIVE_KICK_H
 
 #include <rcsc/player/soccer_action.h>
+#include <rcsc/geom/vector_2d.h>
+
 
 class Bhv_BasicOffensiveKick
     : public rcsc::SoccerBehavior
 {
 private:
 public:
+    
     bool execute(rcsc::PlayerAgent *agent);
     bool shoot(rcsc::PlayerAgent *agent);
     // bool pass_to_forward(rcsc::PlayerAgent *agent, int kick_count);
     bool pass(rcsc::PlayerAgent *agent, int kick_count = 3);
     bool dribble(rcsc::PlayerAgent *agent);
     bool clearball(rcsc::PlayerAgent *agent);
+};
+
+class Dribble 
+{
+    private:
+
+    public:
+
+        bool execute(rcsc::PlayerAgent *agent);
+
+        double DribblePower(rcsc::PlayerAgent *agent,
+                                rcsc::Vector2D point ,
+                                    int selfreachCycles );
+};
+
+class Shoot 
+{
+    private:
+    public:
+
+            bool execute(rcsc::PlayerAgent *agent);
+
+            bool check(rcsc::PlayerAgent *agent,
+                        rcsc::Vector2D point );
 };
 
 #endif

@@ -61,7 +61,7 @@ bool Bhv_BasicOffensiveKick::execute(PlayerAgent *agent)
 
     const WorldModel &wm = agent->world();
 
-    if (shoot(agent))
+    if (Shoot().execute(agent))
     {
         return true;
     }
@@ -83,7 +83,7 @@ bool Bhv_BasicOffensiveKick::execute(PlayerAgent *agent)
             return true;
     }
 
-    if (dribble(agent))
+    if (Dribble().execute(agent))
     {
         return true;
     }
@@ -100,25 +100,31 @@ bool Bhv_BasicOffensiveKick::execute(PlayerAgent *agent)
     return true;
 }
 
-bool Bhv_BasicOffensiveKick::shoot(rcsc::PlayerAgent *agent)
+bool Shoot::execute(rcsc::PlayerAgent *agent)
 {
     const WorldModel &wm = agent->world();
     Vector2D ball_pos = wm.ball().pos();
-    Vector2D center_goal = Vector2D(52.5, 0);
-    if (ball_pos.dist(center_goal) > 25)
+    Vector2D center_goal = Vector2D (ServerParam::i().pitchHalfLength()
+                                        ,ServerParam::i().goalHalfWidth());
+    if (ball_pos.dist(center_goal) > 15)
         return false;
-    Vector2D left_goal = Vector2D(52.5, 6);
-    Vector2D right_goal = Vector2D(52.5, -6);
-
-    if (left_goal.dist(ball_pos) < right_goal.dist(ball_pos))
+    std::vector<Vector2D> pos;
+    for(double y = -6 ; y <= 6 ; y++)
     {
-        Body_SmartKick(left_goal, 3, 0.1, 2).execute(agent);
+        Vector2D point (ServerParam::i().pitchHalfLength(),y);
+        pos.push_back(point);
     }
-    else
+    std::vector<Vector2D> safepos ;
+    for(auto position : pos)
     {
-        Body_SmartKick(right_goal, 3, 0.1, 2).execute(agent);
+        if(check(agent,
+                    position))
+        {
+            safepos.push_back(position);
+        }
     }
-    return true;
+    
+    return false;
 }
 
 bool Bhv_BasicOffensiveKick::pass(PlayerAgent *agent, int kick_count)
@@ -224,4 +230,120 @@ bool Bhv_BasicOffensiveKick::clearball(PlayerAgent *agent)
     }
     Body_StopBall().execute(agent);
     return true;
+}
+
+bool Dribble::execute(rcsc::PlayerAgent *agent)
+{
+    const WorldModel &wm = agent->world();
+    const ServerParam &sp = ServerParam::i();
+    if(wm.gameMode().type() != GameMode::PlayOn)
+    {
+        return false;
+    }
+    std::vector<std::pair<Vector2D,int>> Poss; // point , cycles
+    double ballx = wm.ball().pos().x;
+    double bally = wm.ball().pos().y;
+    for(double x = ballx - 2 ; x <= ballx + 10 ; x+=1)
+    {
+        for(double y = bally - 8 ; y <= bally + 8 ; y+=1)
+        {
+            Vector2D position(x,y);
+            if(!position.isValid())
+            {
+                continue;
+            }
+            const rcsc::PlayerType player = wm.self().playerType();
+            const PlayerObject *opp = wm.getOpponentNearestTo(position,5,nullptr);
+            const rcsc::PlayerType *oppType = opp->playerTypePtr();
+            double distopp = opp->pos().dist(position);
+            double distself = wm.self().pos().dist(position);
+            int cyclesopp = oppType->cyclesToReachDistance(distopp);
+            int cyclesself = player.cyclesToReachDistance(distself);
+            if(cyclesself < cyclesopp)
+            {
+                std::pair<Vector2D,int > pusher ;
+                pusher.first = position;
+                pusher.second = cyclesself;
+                Poss.push_back(pusher);
+            }
+        }
+    }
+    if(Poss.empty())
+    {
+        return false;
+    }   
+    if(Poss.size() == 1)
+    {
+        double power = Dribble().DribblePower(agent,
+                                    Poss.at(0).first,
+                                        Poss.at(0).second);
+        if(Body_SmartKick(Poss.at(0).first,
+                            power,
+                                0.1,
+                                    2).execute(agent))
+        {
+            agent->debugClient().addLine(wm.ball().pos(),
+                                            Poss.at(0).first);
+            return true;
+        }
+    }
+    Vector2D goal(52.5,0);
+    for(int i = 0 ; i < Poss.size() ; i++)
+    {
+        for(int j = i+1 ; j < Poss.size() ; j++)
+        {
+            if(Poss.at(i).first.dist(goal) > Poss.at(j).first.dist(goal))
+            {
+                std::swap(Poss.at(i),Poss.at(j));
+            }   
+        }
+    }
+    
+    Vector2D finalpos (Poss.at(0).first);
+    double power = Dribble().DribblePower(agent,
+                        finalpos,
+                            Poss.at(0).second);
+    if(Body_SmartKick(finalpos,power,0.1,2).execute(agent))
+    {
+
+       agent->debugClient().addLine(wm.ball().pos(),
+                                            Poss.at(0).first);
+        return true;
+    }
+    return false;
+}
+
+double Dribble::DribblePower(rcsc::PlayerAgent *agent, Vector2D point, int selfreachCycles)
+{
+    const WorldModel &wm = agent->world();
+    const ServerParam &sp = ServerParam::i();
+    double ang = (point-wm.ball().pos()).th().degree();
+    for(double power = 2.7 ; power >= 0.5 ; power -= 0.1)
+    {
+        Vector2D velocity = Vector2D::polar2vector(power,ang);
+        Vector2D finalPoint = inertia_n_step_point(
+                                    wm.ball().pos(),
+                                        velocity,
+                                            selfreachCycles,
+                                                sp.ballDecay()
+        );
+        if(finalPoint.dist(point) < 0.5)
+        {
+            return power;
+        }
+    }
+}
+
+bool Shoot::check(rcsc::PlayerAgent *agent, rcsc::Vector2D point)
+{
+    const WorldModel &wm = agent->world();
+    AngleDeg ang = (point-wm.ball().pos()).th().degree();
+    double power = 2.7;
+    int cycles = (wm.ball().pos().dist(point))/power;
+    for(int cycle = 1 ; cycle <= cycles ; cycle++)
+    {
+        Vector2D velocity = Vector2D::polar2vector(power,ang);
+        // not complete
+    }
+    return false;
 }

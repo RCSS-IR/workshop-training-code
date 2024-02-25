@@ -28,56 +28,37 @@
 #include <config.h>
 #endif
 
-#include "role_goalie.h"
-
-#include "bhv_goalie_basic_move.h"
-#include "extensions/bhv_goalie_chase_ball.h"
-#include "extensions/bhv_goalie_free_kick.h"
+#include "role_player.h"
+#include "bhv_basic_move.h"
 #include "bhv_basic_offensive_kick.h"
 
-#include "basic_actions/basic_actions.h"
+#include "basic_actions/body_hold_ball.h"
 #include "basic_actions/neck_scan_field.h"
-#include "basic_actions/body_clear_ball.h"
 
 #include <rcsc/player/player_agent.h>
 #include <rcsc/player/debug_client.h>
-#include <rcsc/player/world_model.h>
 
 #include <rcsc/common/logger.h>
-#include <rcsc/common/server_param.h>
-#include <rcsc/geom/rect_2d.h>
 
 using namespace rcsc;
+
 
 /*-------------------------------------------------------------------*/
 /*!
 
  */
 bool
-RoleGoalie::execute( PlayerAgent * agent )
+RolePlayer::execute( PlayerAgent * agent )
 {
-    static const Rect2D our_penalty( Vector2D( -ServerParam::i().pitchHalfLength(),
-                                               -ServerParam::i().penaltyAreaHalfWidth() + 1.0 ),
-                                     Size2D( ServerParam::i().penaltyAreaLength() - 1.0,
-                                             ServerParam::i().penaltyAreaWidth() - 2.0 ) );
-
-    //////////////////////////////////////////////////////////////
-    // play_on play
-
-    // catchable
-    if ( agent->world().time().cycle()
-         > agent->world().self().catchTime().cycle() + ServerParam::i().catchBanCycle()
-         && agent->world().ball().distFromSelf() < ServerParam::i().catchableArea() - 0.05
-         && our_penalty.contains( agent->world().ball().pos() ) )
+    bool kickable = agent->world().self().isKickable();
+    if ( agent->world().kickableTeammate()
+         && agent->world().teammatesFromBall().front()->distFromBall()
+         < agent->world().ball().distFromSelf() )
     {
-        dlog.addText( Logger::ROLE,
-                      __FILE__": catchable. ball dist=%.1f, my_catchable=%.1f",
-                      agent->world().ball().distFromSelf(),
-                      ServerParam::i().catchableArea() );
-        agent->doCatch();
-        agent->setNeckAction( new Neck_TurnToBall() );
+        kickable = false;
     }
-    else if ( agent->world().self().isKickable() )
+
+    if ( kickable )
     {
         doKick( agent );
     }
@@ -94,7 +75,7 @@ RoleGoalie::execute( PlayerAgent * agent )
 
  */
 void
-RoleGoalie::doKick( PlayerAgent * agent )
+RolePlayer::doKick( PlayerAgent * agent )
 {
     if (Bhv_BasicOffensiveKick().execute(agent))
     {
@@ -102,7 +83,7 @@ RoleGoalie::doKick( PlayerAgent * agent )
                         __FILE__ ": bhv_basic_offensive_kick");
         return;
     }
-    Body_ClearBall().execute( agent );
+    Body_HoldBall().execute( agent );
     agent->setNeckAction( new Neck_ScanField() );
 }
 
@@ -111,14 +92,7 @@ RoleGoalie::doKick( PlayerAgent * agent )
 
  */
 void
-RoleGoalie::doMove( PlayerAgent * agent )
+RolePlayer::doMove( PlayerAgent * agent )
 {
-    if ( Bhv_GoalieChaseBall::is_ball_chase_situation( agent ) )
-    {
-        Bhv_GoalieChaseBall().execute( agent );
-    }
-    else
-    {
-        Bhv_GoalieBasicMove().execute( agent );
-    }
+    Bhv_BasicMove().execute( agent );
 }
